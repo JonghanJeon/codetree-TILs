@@ -134,164 +134,248 @@ public class Main {
         }
     }
 
+    // public static void throwBall(int round) {
+    //     ballDirection = (round / n) % 4; // 우(0) 상(1) 좌(2) 하(3)
+    //     if (ballDirection == 0) {
+    //         int ballRow = round % n;
+    //         for (int i = 0; i < m; i++) {
+    //             int[] personInfo = findFirstPerson(ballDirection, i, ballRow, 0);
+    //             int score = 0;
+    //             //맞은 사람이 있다
+    //             if (personInfo[2] != -1) {
+    //                 // 0번째가 머리 사람
+    //                 if (teamDirection[i] == 0) {
+    //                     score = (personInfo[3] + 1) * (personInfo[3] + 1);
+    //                 } 
+    //                 // 마지막이 머리 사람
+    //                 else {
+    //                     score = (teams[i].size() - personInfo[3]) * (teams[i].size() - personInfo[3]);
+    //                 }
+    //                 answer += score;
+    //                 // 머리랑 꼬리 바뀜
+    //                 teamDirection[i] = (teamDirection[i] + 1) % 2;
+    //                 int tmp = teams[i].get(0).num;
+    //                 teams[i].get(0).num = teams[i].get(teams[i].size() - 1).num;
+    //                 teams[i].get(teams[i].size() - 1).num = tmp;
+    //                 setMap();
+    //                 break;
+    //             }
+    //         }
+    //     } else if (ballDirection == 1) {
+    //         int ballCol = round % n;
+    //         for (int i = 0; i < m; i++) {
+    //             int[] personInfo = findFirstPerson(ballDirection, i, 0, ballCol);
+    //             int score = 0;
+    //             //맞은 사람이 있다
+    //             if (personInfo[2] != -1) {
+    //                 // 0번째가 머리 사람
+    //                 if (teamDirection[i] == 0) {
+    //                     score = (personInfo[3] + 1) * (personInfo[3] + 1);
+    //                 } 
+    //                 // 마지막이 머리 사람
+    //                 else {
+    //                     score = (teams[i].size() - personInfo[3]) * (teams[i].size() - personInfo[3]);
+    //                 }
+    //                 answer += score;
+    //                 // 머리랑 꼬리 바뀜
+    //                 teamDirection[i] = (teamDirection[i] + 1) % 2;
+    //                 int tmp = teams[i].get(0).num;
+    //                 teams[i].get(0).num = teams[i].get(teams[i].size() - 1).num;
+    //                 teams[i].get(teams[i].size() - 1).num = tmp;
+    //                 setMap();
+    //                 break;
+    //             }
+    //         }
+    //     } else if (ballDirection == 2) {
+    //         int ballRow = n - 1 - (round % n);
+    //         for (int i = 0; i < m; i++) {
+    //             int[] personInfo = findFirstPerson(ballDirection, i, ballRow, 0);
+    //             int score = 0;
+    //             //맞은 사람이 있다
+    //             if (personInfo[2] != -1) {
+    //                 // 0번째가 머리 사람
+    //                 if (teamDirection[i] == 0) {
+    //                     score = (personInfo[3] + 1) * (personInfo[3] + 1);
+    //                 } 
+    //                 // 마지막이 머리 사람
+    //                 else {
+    //                     score = (teams[i].size() - personInfo[3]) * (teams[i].size() - personInfo[3]);
+    //                 }
+    //                 answer += score;
+    //                 // 머리랑 꼬리 바뀜
+    //                 teamDirection[i] = (teamDirection[i] + 1) % 2;
+    //                 int tmp = teams[i].get(0).num;
+    //                 teams[i].get(0).num = teams[i].get(teams[i].size() - 1).num;
+    //                 teams[i].get(teams[i].size() - 1).num = tmp;
+    //                 setMap();
+    //                 break;
+    //             }
+    //         }
+    //     } else {
+    //         int ballCol = n - 1 - (round % n);
+    //         for (int i = 0; i < m; i++) {
+    //             int[] personInfo = findFirstPerson(ballDirection, i, 0, ballCol);
+    //             int score = 0;
+    //             //맞은 사람이 있다
+    //             if (personInfo[2] != -1) {
+    //                 // 0번째가 머리 사람
+    //                 if (teamDirection[i] == 0) {
+    //                     score = (personInfo[3] + 1) * (personInfo[3] + 1);
+    //                 } 
+    //                 // 마지막이 머리 사람
+    //                 else {
+    //                     score = (teams[i].size() - personInfo[3]) * (teams[i].size() - personInfo[3]);
+    //                 }
+    //                 answer += score;
+    //                 // 머리랑 꼬리 바뀜
+    //                 teamDirection[i] = (teamDirection[i] + 1) % 2;
+    //                 int tmp = teams[i].get(0).num;
+    //                 teams[i].get(0).num = teams[i].get(teams[i].size() - 1).num;
+    //                 teams[i].get(teams[i].size() - 1).num = tmp;
+    //                 setMap();
+    //                 break;
+    //             }
+    //         }
+    //     }
+    // }
+
+    // public static int[] findFirstPerson(int ballDirection, int ballRow, int ballCol) {
+    //     int[] info;
+    //     if (ballDirection == 0) { // 오른쪽으로    
+    //         info = new int[]{Integer.MAX_VALUE, Integer.MAX_VALUE, -1, -1};
+    //         for (int i = 0; i < teams[teamId].size(); i++) {
+    //             Person person = teams[teamId].get(i);
+    //             if (person.x == ballRow && person.y < info[1]) {
+    //                 info[0] = person.x;
+    //                 info[1] = person.y;
+    //                 info[2] = person.num;
+    //                 info[3] = i; // 몇 번째 사람인지
+    //             }
+    //         }
+    //     } else if (ballDirection == 1) { // 위로
+    //         info  = new int[]{Integer.MIN_VALUE, Integer.MIN_VALUE, -1, -1};
+    //         for (int i = 0; i < teams[teamId].size(); i++) {
+    //             Person person = teams[teamId].get(i);
+    //             if (person.y == ballCol && info[0] < person.x) {
+    //                 info[0] = person.x;
+    //                 info[1] = person.y;
+    //                 info[2] = person.num;
+    //                 info[3] = i; // 몇 번째 사람인지
+    //             }
+    //         }
+    //     } else if (ballDirection == 2) { // 왼쪽으로
+    //         info = new int[]{Integer.MIN_VALUE, Integer.MIN_VALUE, -1, -1};
+    //         for (int i = 0; i < teams[teamId].size(); i++) {
+    //             Person person = teams[teamId].get(i);
+    //             if (person.x == ballRow && info[1] < person.y) {
+    //                 info[0] = person.x;
+    //                 info[1] = person.y;
+    //                 info[2] = person.num;
+    //                 info[3] = i; // 몇 번째 사람인지
+    //             }
+    //         }
+
+    //     } else { // 아래로
+    //         info  = new int[]{Integer.MAX_VALUE, Integer.MAX_VALUE, -1, -1};
+    //         for (int i = 0; i < teams[teamId].size(); i++) {
+    //             Person person = teams[teamId].get(i);
+    //             if (person.y == ballCol && person.x < info[0]) {
+    //                 info[0] = person.x;
+    //                 info[1] = person.y;
+    //                 info[2] = person.num;
+    //                 info[3] = i; // 몇 번째 사람인지
+    //             }
+    //         }
+    //     }
+
+    //     return info;
+    // }
+
     public static void throwBall(int round) {
         ballDirection = (round / n) % 4; // 우(0) 상(1) 좌(2) 하(3)
-        if (ballDirection == 0) {
-            int ballRow = round % n;
-            for (int i = 0; i < m; i++) {
-                int[] personInfo = findFirstPerson(ballDirection, i, ballRow, 0);
-                int score = 0;
-                //맞은 사람이 있다
-                if (personInfo[2] != -1) {
-                    // 0번째가 머리 사람
-                    if (teamDirection[i] == 0) {
-                        score = (personInfo[3] + 1) * (personInfo[3] + 1);
-                    } 
-                    // 마지막이 머리 사람
-                    else {
-                        score = (teams[i].size() - personInfo[3]) * (teams[i].size() - personInfo[3]);
-                    }
-                    answer += score;
-                    // 머리랑 꼬리 바뀜
-                    teamDirection[i] = (teamDirection[i] + 1) % 2;
-                    int tmp = teams[i].get(0).num;
-                    teams[i].get(0).num = teams[i].get(teams[i].size() - 1).num;
-                    teams[i].get(teams[i].size() - 1).num = tmp;
-                    setMap();
-                    break;
-                }
+        int[] personInfo = findFirstPerson(ballDirection, round);
+        if (personInfo[2] != -1) {
+            int score;
+            int teamId = personInfo[4];
+            // 0번째가 머리 사람
+            if (teamDirection[teamId] == 0) {
+                score = (personInfo[3] + 1) * (personInfo[3] + 1);
+            } 
+            // 마지막이 머리 사람
+            else {
+                score = (teams[teamId].size() - personInfo[3]) * (teams[teamId].size() - personInfo[3]);
             }
-        } else if (ballDirection == 1) {
-            int ballCol = round % n;
-            for (int i = 0; i < m; i++) {
-                int[] personInfo = findFirstPerson(ballDirection, i, 0, ballCol);
-                int score = 0;
-                //맞은 사람이 있다
-                if (personInfo[2] != -1) {
-                    // 0번째가 머리 사람
-                    if (teamDirection[i] == 0) {
-                        score = (personInfo[3] + 1) * (personInfo[3] + 1);
-                    } 
-                    // 마지막이 머리 사람
-                    else {
-                        score = (teams[i].size() - personInfo[3]) * (teams[i].size() - personInfo[3]);
-                    }
-                    answer += score;
-                    // 머리랑 꼬리 바뀜
-                    teamDirection[i] = (teamDirection[i] + 1) % 2;
-                    int tmp = teams[i].get(0).num;
-                    teams[i].get(0).num = teams[i].get(teams[i].size() - 1).num;
-                    teams[i].get(teams[i].size() - 1).num = tmp;
-                    setMap();
-                    break;
-                }
-            }
-        } else if (ballDirection == 2) {
-            int ballRow = n - 1 - (round % n);
-            for (int i = 0; i < m; i++) {
-                int[] personInfo = findFirstPerson(ballDirection, i, ballRow, 0);
-                int score = 0;
-                //맞은 사람이 있다
-                if (personInfo[2] != -1) {
-                    // 0번째가 머리 사람
-                    if (teamDirection[i] == 0) {
-                        score = (personInfo[3] + 1) * (personInfo[3] + 1);
-                    } 
-                    // 마지막이 머리 사람
-                    else {
-                        score = (teams[i].size() - personInfo[3]) * (teams[i].size() - personInfo[3]);
-                    }
-                    answer += score;
-                    // 머리랑 꼬리 바뀜
-                    teamDirection[i] = (teamDirection[i] + 1) % 2;
-                    int tmp = teams[i].get(0).num;
-                    teams[i].get(0).num = teams[i].get(teams[i].size() - 1).num;
-                    teams[i].get(teams[i].size() - 1).num = tmp;
-                    setMap();
-                    break;
-                }
-            }
-        } else {
-            int ballCol = n - 1 - (round % n);
-            for (int i = 0; i < m; i++) {
-                int[] personInfo = findFirstPerson(ballDirection, i, 0, ballCol);
-                int score = 0;
-                //맞은 사람이 있다
-                if (personInfo[2] != -1) {
-                    // 0번째가 머리 사람
-                    if (teamDirection[i] == 0) {
-                        score = (personInfo[3] + 1) * (personInfo[3] + 1);
-                    } 
-                    // 마지막이 머리 사람
-                    else {
-                        score = (teams[i].size() - personInfo[3]) * (teams[i].size() - personInfo[3]);
-                    }
-                    answer += score;
-                    // 머리랑 꼬리 바뀜
-                    teamDirection[i] = (teamDirection[i] + 1) % 2;
-                    int tmp = teams[i].get(0).num;
-                    teams[i].get(0).num = teams[i].get(teams[i].size() - 1).num;
-                    teams[i].get(teams[i].size() - 1).num = tmp;
-                    setMap();
-                    break;
-                }
-            }
+            answer += score;
+            // 머리랑 꼬리 바뀜
+            teamDirection[teamId] = (teamDirection[teamId] + 1) % 2;
+            int tmp = teams[teamId].get(0).num;
+            teams[teamId].get(0).num = teams[teamId].get(teams[teamId].size() - 1).num;
+            teams[teamId].get(teams[teamId].size() - 1).num = tmp;
+            setMap();
         }
     }
 
-
-
-    public static int[] findFirstPerson(int ballDirection, int teamId, int ballRow, int ballCol) {
+    public static int[] findFirstPerson(int ballDirection, int round) {
         int[] info;
-        if (ballDirection == 0) { // 오른쪽으로    
-            info = new int[]{Integer.MAX_VALUE, Integer.MAX_VALUE, -1, -1};
-            for (int i = 0; i < teams[teamId].size(); i++) {
-                Person person = teams[teamId].get(i);
-                if (person.x == ballRow && person.y < info[1]) {
-                    info[0] = person.x;
-                    info[1] = person.y;
-                    info[2] = person.num;
-                    info[3] = i; // 몇 번째 사람인지
-                }
-            }
-        } else if (ballDirection == 1) { // 위로
-            info  = new int[]{Integer.MIN_VALUE, Integer.MIN_VALUE, -1, -1};
-            for (int i = 0; i < teams[teamId].size(); i++) {
-                Person person = teams[teamId].get(i);
-                if (person.y == ballCol && info[0] < person.x) {
-                    info[0] = person.x;
-                    info[1] = person.y;
-                    info[2] = person.num;
-                    info[3] = i; // 몇 번째 사람인지
-                }
-            }
-        } else if (ballDirection == 2) { // 왼쪽으로
-            info = new int[]{Integer.MIN_VALUE, Integer.MIN_VALUE, -1, -1};
-            for (int i = 0; i < teams[teamId].size(); i++) {
-                Person person = teams[teamId].get(i);
-                if (person.x == ballRow && info[1] < person.y) {
-                    info[0] = person.x;
-                    info[1] = person.y;
-                    info[2] = person.num;
-                    info[3] = i; // 몇 번째 사람인지
-                }
-            }
-
-        } else { // 아래로
-            info  = new int[]{Integer.MAX_VALUE, Integer.MAX_VALUE, -1, -1};
-            for (int i = 0; i < teams[teamId].size(); i++) {
-                Person person = teams[teamId].get(i);
-                if (person.y == ballCol && person.x < info[0]) {
-                    info[0] = person.x;
-                    info[1] = person.y;
-                    info[2] = person.num;
-                    info[3] = i; // 몇 번째 사람인지
+        int ballRow = 0;
+        int ballCol = 0;
+        if (ballDirection == 0) {
+            info = new int[]{Integer.MAX_VALUE, Integer.MAX_VALUE, -1, -1, -1};
+            ballRow = round % n;
+        } else if (ballDirection == 1) {
+            info  = new int[]{Integer.MIN_VALUE, Integer.MIN_VALUE, -1, -1, -1};
+            ballCol = round % n;
+        } else if (ballDirection == 2) {
+            info = new int[]{Integer.MIN_VALUE, Integer.MIN_VALUE, -1, -1, -1};
+            ballRow = n - 1 - (round % n);
+        } else {
+            info  = new int[]{Integer.MAX_VALUE, Integer.MAX_VALUE, -1, -1, -1};
+            ballCol = n - 1 - (round % n);
+        }
+        for (int i = 0 ; i < m; i++) {
+            for (int j = 0; j < teams[i].size(); j++) {
+                if (ballDirection == 0) { //오른쪽으로
+                    Person person = teams[i].get(j);
+                    if (person.x == ballRow && person.y < info[1]) {
+                        info[0] = person.x;
+                        info[1] = person.y;
+                        info[2] = person.num;
+                        info[3] = j; // 몇 번째 사람인지
+                        info[4] = i; // 몇 번째 팀인지
+                    }
+                } else if (ballDirection == 1) { //위로
+                    Person person = teams[i].get(j);
+                    if (person.y == ballCol && info[0] < person.x) {
+                        info[0] = person.x;
+                        info[1] = person.y;
+                        info[2] = person.num;
+                        info[3] = j; // 몇 번째 사람인지
+                        info[4] = i; // 몇 번째 팀인지
+                    }
+                } else if (ballDirection == 2) { //왼쪽으로
+                    Person person = teams[i].get(j);
+                    if (person.x == ballRow && info[1] < person.y) {
+                        info[0] = person.x;
+                        info[1] = person.y;
+                        info[2] = person.num;
+                        info[3] = j; // 몇 번째 사람인지
+                        info[4] = i; // 몇 번째 팀인지
+                    }
+                } else { //아래로
+                    Person person = teams[i].get(j);
+                    if (person.y == ballCol && person.x < info[0]) {
+                        info[0] = person.x;
+                        info[1] = person.y;
+                        info[2] = person.num;
+                        info[3] = j; // 몇 번째 사람인지
+                        info[4] = i; // 몇 번째 팀인지
+                    }
                 }
             }
         }
-
         return info;
     }
+
 
     public static void go() {
         for (int i = 0; i < m; i++) {
