@@ -239,6 +239,9 @@ public class Main {
             // 0번째 사람이 머리라면
             if (teamDirection[i] == 0) {
                 for (int idx = teams[i].size() - 1; idx >= 0; idx--) {
+                    if (idx == teams[i].size() - 1) {
+                        map[teams[i].get(idx).x][teams[i].get(idx).y] = 4;
+                    }
                     // 머리사람은 앞으로 한칸
                     if (idx == 0) {
                         int[] next = findNext(teams[i].get(idx).x, teams[i].get(idx).y);
@@ -250,11 +253,15 @@ public class Main {
                         teams[i].get(idx).x = teams[i].get(idx - 1).x;
                         teams[i].get(idx).y = teams[i].get(idx - 1).y;
                     }
+                    map[teams[i].get(idx).x][teams[i].get(idx).y] = teams[i].get(idx).num;
                 }
             } 
             // 마지막 사람이 머리라면
             else {
                 for (int idx = 0; idx < teams[i].size(); idx++) {
+                    if (idx == 0) {
+                        map[teams[i].get(idx).x][teams[i].get(idx).y] = 4;
+                    }
                     // 마지막사람은 앞으로 한칸
                     if (idx == teams[i].size() - 1) {
                         int[] next = findNext(teams[i].get(idx).x, teams[i].get(idx).y);
@@ -267,6 +274,7 @@ public class Main {
                         teams[i].get(idx).x = teams[i].get(idx + 1).x;
                         teams[i].get(idx).y = teams[i].get(idx + 1).y;
                     }
+                    map[teams[i].get(idx).x][teams[i].get(idx).y] = teams[i].get(idx).num;
                 }
             }
         }
