@@ -23,6 +23,7 @@ public class Main {
 
     static int n, m, k;
     static int[][] map;
+    static int[][] initMap;
     static List<Person>[] teams;
     static int[] dx = {-1, 1, 0, 0};
     static int[] dy = {0, 0, -1, 1};
@@ -49,18 +50,27 @@ public class Main {
             teams[i].clear();
         }
         map = new int[n][n];
+        initMap = new int[n][n];
 
         for (int i = 0; i < n; i++) {
             st = new StringTokenizer(br.readLine());
             for (int j = 0; j < n; j++) {
                 map[i][j] = Integer.parseInt(st.nextToken());
+                if (map[i][j] != 0) {
+                    initMap[i][j] = 4;
+                } else {
+                    initMap[i][j] = 0;
+                }
             }
         }
 
         // 각 팀별 사람 구하기
+        boolean[][] visited = new boolean[n][n];
         int index = 0;
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
+                if (visited[i][j])
+                    continue;
                 if (map[i][j] == 1) {
                     bfs(i, j, index);
                     index += 1;
@@ -71,6 +81,38 @@ public class Main {
         game();
 
         System.out.println(answer);
+    }
+
+    public static void bfs(int sx, int sy, int index) {
+        boolean[][] visited = new boolean[n][n];
+        teams[index].add(new Person(sx, sy, map[sx][sy], index));
+        Queue<Person> q = new LinkedList<>();
+        q.offer(new Person(sx, sy));
+        visited[sx][sy] = true;
+
+        while(!q.isEmpty()) {
+
+            Person cur = q.poll();
+
+            for (int d = 0; d < 4; d++) {
+                int nx = cur.x + dx[d];
+                int ny = cur.y + dy[d];
+
+                if (!inMap(nx, ny))
+                    continue;
+                if (visited[nx][ny])
+                    continue;
+                if (map[nx][ny] == 4 || map[nx][ny] == 0)
+                    continue;
+                if (map[cur.x][cur.y] == 1 && map[nx][ny] == 3)
+                    continue;
+
+                teams[index].add(new Person(nx, ny, map[nx][ny], index));
+                visited[nx][ny] = true;
+                q.offer(new Person(nx, ny));
+            }
+
+        }
     }
 
     public static void game() {
@@ -253,11 +295,6 @@ public class Main {
                         tx = tmpx;
                         ty = tmpy;
                     }
-                    if (idx == teams[i].size() - 1) {
-                        map[tx][ty] = 4;
-                    } else {
-                        map[teams[i].get(idx).x][teams[i].get(idx).y] = teams[i].get(idx).num;
-                    }
                 }
             } 
             // 마지막 사람이 머리라면
@@ -277,13 +314,22 @@ public class Main {
                         tx = tmpx;
                         ty = tmpy;
                     }
-
-                    if (idx == 0) {
-                        map[tx][ty] = 4;
-                    } else {
-                        map[teams[i].get(idx).x][teams[i].get(idx).y] = teams[i].get(idx).num;
-                    }
                 }
+            }
+        }
+        setMap();
+    }
+
+    public static void setMap() {
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                map[i][j] = initMap[i][j];
+            }
+        } 
+
+        for (int i = 0; i < m; i++) {
+            for (Person person : teams[i]) {
+                map[person.x][person.y] = person.num;
             }
         }
     }
@@ -300,39 +346,10 @@ public class Main {
                 return new int[]{nx, ny};
             }
         }
-
-        return new int[]{-1, -1};
+        return new int[]{1, 1};
     }
 
-    public static void bfs(int sx, int sy, int index) {
-        boolean[][] visited = new boolean[n][n];
-        teams[index].add(new Person(sx, sy, map[sx][sy], index));
-        Queue<Person> q = new LinkedList<>();
-        q.offer(new Person(sx, sy));
-        visited[sx][sy] = true;
-
-        while(!q.isEmpty()) {
-
-            Person cur = q.poll();
-
-            for (int d = 0; d < 4; d++) {
-                int nx = cur.x + dx[d];
-                int ny = cur.y + dy[d];
-
-                if (!inMap(nx, ny))
-                    continue;
-                if (visited[nx][ny])
-                    continue;
-                if (map[nx][ny] == 4 || map[nx][ny] == 0)
-                    continue;
-            
-                teams[index].add(new Person(nx, ny, map[nx][ny], index));
-                visited[nx][ny] = true;
-                q.offer(new Person(nx, ny));
-            }
-
-        }
-    }
+    
 
     public static boolean inMap(int sx, int sy) {
         return 0 <= sx && sx < n && 0 <= sy && sy < n;
