@@ -117,11 +117,18 @@ public class Main {
 
     public static void game() {
         for (int round = 0; round < k; round++) {
+
             // 앞으로 한칸씩 전진
             go();
 
+            // // 팀이 전진한 후 map 출력
+            // System.out.println("After moving:");
+            // printMap();
+
             // 공던지기
             throwBall(round);
+
+            System.out.println("round = " + (round + 1) + ", answer = " + answer);
         }
     }
 
@@ -148,6 +155,7 @@ public class Main {
                     int tmp = teams[i].get(0).num;
                     teams[i].get(0).num = teams[i].get(teams[i].size() - 1).num;
                     teams[i].get(teams[i].size() - 1).num = tmp;
+                    setMap();
                 }
             }
         } else if (ballDirection == 1) {
@@ -171,6 +179,7 @@ public class Main {
                     int tmp = teams[i].get(0).num;
                     teams[i].get(0).num = teams[i].get(teams[i].size() - 1).num;
                     teams[i].get(teams[i].size() - 1).num = tmp;
+                    setMap();
                 }
             }
         } else if (ballDirection == 2) {
@@ -194,6 +203,7 @@ public class Main {
                     int tmp = teams[i].get(0).num;
                     teams[i].get(0).num = teams[i].get(teams[i].size() - 1).num;
                     teams[i].get(teams[i].size() - 1).num = tmp;
+                    setMap();
                 }
             }
         } else {
@@ -217,6 +227,7 @@ public class Main {
                     int tmp = teams[i].get(0).num;
                     teams[i].get(0).num = teams[i].get(teams[i].size() - 1).num;
                     teams[i].get(teams[i].size() - 1).num = tmp;
+                    setMap();
                 }
             }
         }
@@ -342,6 +353,7 @@ public class Main {
             if (!inMap(nx, ny))
                 continue;
 
+            
             if (map[nx][ny] == 4 || map[nx][ny] == 3) {
                 return new int[]{nx, ny};
             }
@@ -349,9 +361,16 @@ public class Main {
         return new int[]{1, 1};
     }
 
-    
-
     public static boolean inMap(int sx, int sy) {
         return 0 <= sx && sx < n && 0 <= sy && sy < n;
+    }
+
+    public static void printMap() {
+        for (int i = 0; i < n; i++) { // n은 map의 행 크기
+            for (int j = 0; j < n; j++) {
+                System.out.print(map[i][j] + " ");
+            }
+            System.out.println(); // 한 행이 끝날 때마다 줄바꿈
+        }
     }
 }
