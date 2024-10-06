@@ -117,17 +117,20 @@ public class Main {
 
     public static void game() {
         for (int round = 0; round < k; round++) {
+            // System.out.println("Before moving:");
+            // printMap();
 
             // 앞으로 한칸씩 전진
             go();
 
-            // // 팀이 전진한 후 map 출력
+            // 팀이 전진한 후 map 출력
             // System.out.println("After moving:");
             // printMap();
 
             // 공던지기
             throwBall(round);
 
+            // System.out.println("round = " + (round + 1) + ", answer = " + answer);
         }
     }
 
@@ -155,6 +158,7 @@ public class Main {
                     teams[i].get(0).num = teams[i].get(teams[i].size() - 1).num;
                     teams[i].get(teams[i].size() - 1).num = tmp;
                     setMap();
+                    break;
                 }
             }
         } else if (ballDirection == 1) {
@@ -179,6 +183,7 @@ public class Main {
                     teams[i].get(0).num = teams[i].get(teams[i].size() - 1).num;
                     teams[i].get(teams[i].size() - 1).num = tmp;
                     setMap();
+                    break;
                 }
             }
         } else if (ballDirection == 2) {
@@ -203,6 +208,7 @@ public class Main {
                     teams[i].get(0).num = teams[i].get(teams[i].size() - 1).num;
                     teams[i].get(teams[i].size() - 1).num = tmp;
                     setMap();
+                    break;
                 }
             }
         } else {
@@ -227,6 +233,7 @@ public class Main {
                     teams[i].get(0).num = teams[i].get(teams[i].size() - 1).num;
                     teams[i].get(teams[i].size() - 1).num = tmp;
                     setMap();
+                    break;
                 }
             }
         }
