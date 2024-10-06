@@ -128,7 +128,6 @@ public class Main {
             // 공던지기
             throwBall(round);
 
-            System.out.println("round = " + (round + 1) + ", answer = " + answer);
         }
     }
 
