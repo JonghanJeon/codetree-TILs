@@ -118,11 +118,14 @@ public class Main {
 
     // 이동 가능한지 확인
     public static boolean check(int x, int y) {
+        // 숲 안에는 없지만, 숲 위에 있을 경우 이동 가능
         if (!inBoard(x, y)) {
-            if (x < R && y >= 0 && y < C) {
+            if (x < R && 0 <= y && y < C) {
                 return true;
             }
-        } else {
+        } 
+        // 숲 안에 있고, 해당 칸을 차지하고 있는 골렘이 없다면 이동 가능
+        else {
             if (board[x][y] == 0) {
                 return true;
             }
