@@ -221,7 +221,7 @@ public class Main {
             // 착지한 위치가 맵 안이라면
             else {
                 // 아무도 없으면
-                if (map[newSantaX][newSantaY] == 0) {
+                if (map[newSantaX][newSantaY] == 0 || map[newSantaX][newSantaY] == santa.num) {
                     map[santa.x][santa.y] = 0;
                     setSanta(santa, newSantaX, newSantaY);
                     santaStatus[santa.num - 1] = 3;
@@ -365,7 +365,7 @@ public class Main {
             // 맵 안이라면
             else {
                 // 해당 위치에 산타가 없다면
-                if (map[newSantaX][newSantaY] == 0) {
+                if (map[newSantaX][newSantaY] == 0 || map[newSantaX][newSantaY] == crushSanta.num) {
                     // 산타 착지 및 맵 변경
                     setSanta(crushSanta, newSantaX, newSantaY);
                     // System.out.println("crushSanta.num = " + crushSanta.num);
