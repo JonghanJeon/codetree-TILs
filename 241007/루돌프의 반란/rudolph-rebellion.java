@@ -102,6 +102,7 @@ public class Main {
         // }
 
         for (int no = 1; no <= M; no++) {
+            // System.out.println("START TURN + " + no);
             game(no);
             // System.out.println("AFTER TURN" + no);
             // for (int[] row : map) {
@@ -144,22 +145,20 @@ public class Main {
 
         // 산타 순서대로 움직임
         for (int i = 0; i < P; i++) {
+
             // 탈락한 산타 넘기기
-            if (santaStatus[i] == 2)
+            if (santaStatus[i] == 2){
                 continue;
-            // 다음턴부터는 움직여야함.
-            if (santaStatus[i] == 3) {
+            } else if (santaStatus[i] == 3) {
                 santaStatus[i] = 0;
                 continue;
-            }
-            // 기절중인 산타  => 현재턴, 다음턴 쉬어야 함. 다음턴 쉬는걸로 결정
-            if (santaStatus[i] == 1) {
+            } else if (santaStatus[i] == 1) {
                 santaStatus[i] = 3;
                 continue;
+            } else {
+                // 산타 움직임
+                goSanta(santaList.get(i));
             }
-
-            // 산타 움직임
-            goSanta(santaList.get(i));
         }
 
         // 턴 종료 - 탈락하지 않은 산타 1점씩 부여
@@ -225,7 +224,7 @@ public class Main {
                 if (map[newSantaX][newSantaY] == 0) {
                     map[santa.x][santa.y] = 0;
                     setSanta(santa, newSantaX, newSantaY);
-                    santaStatus[santa.num - 1] = 1;
+                    santaStatus[santa.num - 1] = 3;
                 } 
                 // 다른 산타가 있다면
                 else {
@@ -238,7 +237,7 @@ public class Main {
                         // 산타 착지 및 맵 변경
                         setSanta(crushSanta, newSantaX, newSantaY);
                         // 산타 기절
-                        santaStatus[crushSanta.num - 1] = 1;
+                        santaStatus[crushSanta.num - 1] = 3;
 
                         // 밀려난 산타 다음 위치
                         newSantaX = newSanta.x + xDirection;
@@ -375,7 +374,6 @@ public class Main {
                 } 
                 // 해당 위치에 산타가 있다면
                 else {
-                    System.out.println("연쇄 ON");
                     while (true) {
                         // 다음 위치 산타 구하기
                         Santa newSanta = findNextSanta(newSantaX, newSantaY);
