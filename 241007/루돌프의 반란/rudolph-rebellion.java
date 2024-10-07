@@ -23,6 +23,27 @@ class Santa {
     }
 }
 
+class SantaNext implements Comparable<SantaNext> {
+    int x, y;
+    int distance;
+    int type; // 상(0) 우(1) 하(2) 좌(3)
+
+    public SantaNext(int x, int y, int distance, int type) {
+        this.x = x;
+        this.y = y;
+        this.distance = distance;
+        this.type = type;
+    }
+
+    @Override
+    public int compareTo(SantaNext o) {
+        if (this.distance == o.distance) {
+            return this.type - o.type;
+        }
+        return this.distance - o.distance;
+    }
+}
+
 public class Main {
 
     static int N, M, P, C, D;
@@ -34,6 +55,10 @@ public class Main {
     // 좌상, 상, 우상, 좌, 우, 좌하, 하, 우하
     static int[] rdx = {-1, -1, -1, 0, 0, 1, 1, 1};
     static int[] rdy = {-1, 0, 1, -1, 1, -1, 0, 1};
+
+    // 상 우 하 좌
+    static int[] sdx = {-1, 0, 1, 0};
+    static int[] sdy = {0, 1, 0, -1};
 
     public static void main(String[] args) throws IOException {
         // 여기에 코드를 작성해주세요.
@@ -69,8 +94,35 @@ public class Main {
 
         setMap();
 
+        for (int[] row : map) {
+            for (int num : row) {
+                System.out.print(num + " ");
+            }
+            System.out.println();
+        }
+
         for (int no = 1; no <= M; no++) {
             game();
+            System.out.println("AFTER TURN" + no);
+            for (int[] row : map) {
+                for (int num : row) {
+                    System.out.print(num + " ");
+                }
+                System.out.println();
+            }
+            System.out.print("SantaStatus = ");
+            for (int status : santaStatus) {
+                System.out.print(status + " ");
+            }
+            System.out.print("score : ");
+            for (Santa santa : santaList) {
+                System.out.print(santa.score + " ");
+            }
+            System.out.println();
+        }
+
+        for (Santa santa : santaList) {
+            System.out.print(santa.score + " ");
         }
     }
 
@@ -95,19 +147,163 @@ public class Main {
             // 탈락한 산타 넘기기
             if (santaStatus[i] == 2)
                 continue;
-            // 기절중인 산타 기절 풀고 넘기기
-            if (santaStatus[i] == 1) {
+            // 다음턴부터는 움직여야함.
+            if (santaStatus[i] == 3) {
                 santaStatus[i] = 0;
+                continue;
+            }
+            // 기절중인 산타  => 현재턴, 다음턴 쉬어야 함. 다음턴 쉬는걸로 결정
+            if (santaStatus[i] == 1) {
+                santaStatus[i] = 3;
                 continue;
             }
 
             // 산타 움직임
             goSanta(santaList.get(i));
         }
+
+        // 턴 종료 - 탈락하지 않은 산타 1점씩 부여
+        for (int i = 0; i < P; i++) {
+            if (santaStatus[i] == 2)
+                continue;
+            
+            santaList.get(i).score += 1;
+        }
+
     }
 
     public static void goSanta(Santa santa) {
-        
+        // 이동 위치 구하기
+        int[] nextInfo = getSantaNext(santa);
+
+        // 이동 불가시 이동 안함.
+        if (nextInfo[0] == Integer.MAX_VALUE) {
+            return;
+        } 
+        // 이동 가능시 산타 이동
+        else {
+            moveSanta(santa, nextInfo[0], nextInfo[1]);
+        }
+    }
+
+    public static void moveSanta(Santa santa, int nx, int ny) {
+        // 충돌 발생 안했을 때
+        if (map[nx][ny] != -1) {
+            // 산타 이동 및 맵 변경
+            map[santa.x][santa.y] = 0;
+            setSanta(santa, nx, ny);
+        } 
+        // 충돌 발생시
+        else {
+            System.out.println("산타 이동으로 충돌 발생!!");
+            System.out.println(santa.num + "번 산타 " + "[ " + santa.x + ", " + santa.y + "] 에서 충돌!!");
+            // 산타 점수 추가
+            santa.score += D;
+            
+            // 날아갈 방향 구하기
+            int xDirection = santa.x - rudolf.x;
+            int yDirection = santa.y - rudolf.y;
+
+            System.out.println("xDirection = " + xDirection);
+            System.out.println("yDirection = " + yDirection);
+
+            // 착지할 위치 구하기
+            int newSantaX = rudolf.x + (D * xDirection);
+            int newSantaY = rudolf.y + (D * yDirection);
+
+            System.out.println("newSantaX = " + newSantaX);
+            System.out.println("newSantaY = " + newSantaY);
+
+            // 맵 밖이라면 산타 탈락 및 맵 변경
+            if (!inMap(newSantaX, newSantaY)) {
+                santaStatus[santa.num - 1] = 2;
+                map[santa.x][santa.y] = 0;
+            } 
+            // 착지한 위치가 맵 안이라면
+            else {
+                // 아무도 없으면
+                if (map[newSantaX][newSantaY] == 0) {
+                    setSanta(santa, newSantaX, newSantaY);
+                    santaStatus[santa.num - 1] = 1;
+                } 
+                // 다른 산타가 있다면
+                else {
+                    map[santa.x][santa.y] = 0;
+                    Santa crushSanta = santa;
+                    while (true) {
+                        // 다음 위치 산타 구하기
+                        Santa newSanta = findNextSanta(newSantaX, newSantaY);
+
+                        // 산타 착지 및 맵 변경
+                        setSanta(crushSanta, newSantaX, newSantaY);
+                        // 산타 기절
+                        santaStatus[crushSanta.num - 1] = 1;
+
+                        // 밀려난 산타 다음 위치
+                        newSantaX = newSanta.x + xDirection;
+                        newSantaY = newSanta.y + yDirection;
+
+                        // 밀려난 위치가 맵 밖이면
+                        if (!inMap(newSantaX, newSantaY)) {
+                            // 밀려난 산타 탈락 및 맵 변경
+                            santaStatus[newSanta.num - 1] = 2;
+                            map[newSanta.x][newSanta.y] = 0;
+                            break;
+                        } 
+                        // 밀려난 위치가 맵 안이라면
+                        else {
+                            // 밀려난 위치에 해당 산타가 있다면?
+                            if (map[newSantaX][newSantaY] != 0) {
+                                // 충돌산타 바꾸고 반복
+                                crushSanta = newSanta;
+                                continue;
+                            } 
+                            // 산타가 없다면?
+                            else {
+                                // 밀려난 산타 착지 및 맵 변경
+                                setSanta(newSanta, newSantaX, newSantaY);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+    public static int[] getSantaNext(Santa santa) {
+        // SantaNext - x, y, distance, type(상 우 좌 하)
+
+        List<SantaNext> list = new ArrayList<>();
+
+        for (int d = 0; d < 4; d++) {
+            int nx = santa.x + sdx[d];
+            int ny = santa.y + sdy[d];
+
+            // 맵 밖인 경우 이동 불가
+            if (!inMap(nx, ny))
+                continue;
+            // 다른 산타가 있는 경우 이동 불가
+            if (map[nx][ny] > 0)
+                continue;
+            
+            // 이동했을 때 멀어지면 이동 불가
+            int curDis = getDistance(santa);
+            int newDis = getDistance(nx, ny);
+            if (curDis < newDis)
+                continue;
+            
+            list.add(new SantaNext(nx, ny, newDis, d));
+        }
+
+        if (list.size() == 0) {
+            return new int[]{Integer.MAX_VALUE, Integer.MAX_VALUE};
+        } else {
+            Collections.sort(list);
+            SantaNext next = list.get(0);
+            return new int[]{next.x, next.y};
+        }
     }
 
     public static void goRudolf() {
@@ -134,28 +330,37 @@ public class Main {
         else {
             int santaNum = map[rnx][rny];
             Santa crushSanta = santaList.get(santaNum - 1);
+            System.out.println("루돌프 이동으로 충돌 발생!!");
+            System.out.println(crushSanta.num + "번 산타 " + "[ " + crushSanta.x + ", " + crushSanta.y + "] 에서 충돌!!");
 
             // 산타 점수 추가
             crushSanta.score += C;
 
-            // 날아갈 위치 구하기
-            int[] crushDirection = new int[2];
+            // 날아갈 방향 구하기
             int xDirection = crushSanta.x - rudolf.x;
             int yDirection = crushSanta.y - rudolf.y;
 
+            System.out.println("xDirection = " + xDirection);
+            System.out.println("yDirection = " + yDirection);
+
+            // 착지할 위치 구하기
             int newSantaX = crushSanta.x + (C * xDirection);
             int newSantaY = crushSanta.y + (C * yDirection);
+            
+            System.out.println("newSantaX = " + newSantaX);
+            System.out.println("newSantaY = " + newSantaY);
 
             // 루돌프 이동
             map[rudolf.x][rudolf.y] = 0;
+            System.out.println("rnx = " + rnx + ", rny = " + rny);
             map[rnx][rny] = -1;
             rudolf.x = rnx;
             rudolf.y = rny;
 
             // 날아간 위치가 맵 밖이라면
             if (!inMap(newSantaX, newSantaY)) {
-                // 해당 산타 탈락
-                santaStatus[santaNum - 1] = 2;                
+                // 해당 산타 탈락 및 맵 변경
+                santaStatus[santaNum - 1] = 2;      
             } 
             // 맵 안이라면
             else {
@@ -163,12 +368,13 @@ public class Main {
                 if (map[newSantaX][newSantaY] == 0) {
                     // 산타 착지 및 맵 변경
                     setSanta(crushSanta, newSantaX, newSantaY);
-
+                    System.out.println("crushSanta.num = " + crushSanta.num);
                     // 산타 기절
                     santaStatus[crushSanta.num - 1] = 1;
                 } 
                 // 해당 위치에 산타가 있다면
                 else {
+                    System.out.println("연쇄 ON");
                     while (true) {
                         // 다음 위치 산타 구하기
                         Santa newSanta = findNextSanta(newSantaX, newSantaY);
@@ -185,8 +391,10 @@ public class Main {
 
                         // 밀려난 위치가 맵 밖이면
                         if (!inMap(newSantaX, newSantaY)) {
-                            // 밀려난 산타 탈락
+                            // 밀려난 산타 탈락 및 맵 변경
                             santaStatus[newSanta.num - 1] = 2;
+                            map[newSanta.x][newSanta.y] = 0;
+                            break;
                         } 
                         // 밀려난 위치가 맵 안이라면
                         else {
@@ -200,6 +408,7 @@ public class Main {
                             else {
                                 // 밀려난 산타 착지 및 맵 변경
                                 setSanta(newSanta, newSantaX, newSantaY);
+                                break;
                             }
                         }
                     }
@@ -284,6 +493,9 @@ public class Main {
         return nearSantas.get(0);
     }
 
+    /**
+    산타와 루돌프의 거리 구하기
+    */
     public static int getDistance(Santa santa) {
         int xGap = Math.abs(rudolf.x - santa.x);
         int yGap = Math.abs(rudolf.y - santa.y);
@@ -294,6 +506,14 @@ public class Main {
     public static int getDistance(Santa santa, int nx, int ny) {
         int xGap = Math.abs(nx - santa.x);
         int yGap = Math.abs(ny - santa.y);
+
+        return (xGap * xGap) + (yGap * yGap);
+    }
+
+    // 산타 이동시 루돌프와의 거리 구하기
+    public static int getDistance(int nx, int ny) {
+        int xGap = Math.abs(rudolf.x - nx);
+        int yGap = Math.abs(rudolf.y - ny);
 
         return (xGap * xGap) + (yGap * yGap);
     }
