@@ -90,7 +90,7 @@ public class Main {
             return o1.num - o2.num;
         });
 
-        map = new int[5][5];
+        map = new int[N][N];
 
         setMap();
 
@@ -518,8 +518,8 @@ public class Main {
     }
 
     public static void setMap() {
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
                 map[i][j] = 0;
             }
         }
@@ -532,6 +532,6 @@ public class Main {
     }
 
     public static boolean inMap(int x, int y) {
-        return 0 <= x && x < 5 && 0 <= y && y < 5;
+        return 0 <= x && x < N && 0 <= y && y < N;
     }
 }
