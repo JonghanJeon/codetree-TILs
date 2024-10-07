@@ -94,31 +94,31 @@ public class Main {
 
         setMap();
 
-        for (int[] row : map) {
-            for (int num : row) {
-                System.out.print(num + " ");
-            }
-            System.out.println();
-        }
+        // for (int[] row : map) {
+        //     for (int num : row) {
+        //         System.out.print(num + " ");
+        //     }
+        //     System.out.println();
+        // }
 
         for (int no = 1; no <= M; no++) {
-            game();
-            System.out.println("AFTER TURN" + no);
-            for (int[] row : map) {
-                for (int num : row) {
-                    System.out.print(num + " ");
-                }
-                System.out.println();
-            }
-            System.out.print("SantaStatus = ");
-            for (int status : santaStatus) {
-                System.out.print(status + " ");
-            }
-            System.out.print("score : ");
-            for (Santa santa : santaList) {
-                System.out.print(santa.score + " ");
-            }
-            System.out.println();
+            game(no);
+            // System.out.println("AFTER TURN" + no);
+            // for (int[] row : map) {
+            //     for (int num : row) {
+            //         System.out.print(num + " ");
+            //     }
+            //     System.out.println();
+            // }
+            // System.out.print("SantaStatus = ");
+            // for (int status : santaStatus) {
+            //     System.out.print(status + " ");
+            // }
+            // System.out.print("score : ");
+            // for (Santa santa : santaList) {
+            //     System.out.print(santa.score + " ");
+            // }
+            // System.out.println();
         }
 
         for (Santa santa : santaList) {
@@ -126,7 +126,7 @@ public class Main {
         }
     }
 
-    public static void game() {
+    public static void game(int no) {
         int gameOverCount = 0;
         for (int i = 0; i < P; i++) {
             if (santaStatus[i] == 2) {
@@ -195,8 +195,8 @@ public class Main {
         } 
         // 충돌 발생시
         else {
-            System.out.println("산타 이동으로 충돌 발생!!");
-            System.out.println(santa.num + "번 산타 " + "[ " + santa.x + ", " + santa.y + "] 에서 충돌!!");
+            // System.out.println("산타 이동으로 충돌 발생!!");
+            // System.out.println(santa.num + "번 산타 " + "[ " + santa.x + ", " + santa.y + "] 에서 충돌!!");
             // 산타 점수 추가
             santa.score += D;
             
@@ -204,15 +204,15 @@ public class Main {
             int xDirection = santa.x - rudolf.x;
             int yDirection = santa.y - rudolf.y;
 
-            System.out.println("xDirection = " + xDirection);
-            System.out.println("yDirection = " + yDirection);
+            // System.out.println("xDirection = " + xDirection);
+            // System.out.println("yDirection = " + yDirection);
 
             // 착지할 위치 구하기
             int newSantaX = rudolf.x + (D * xDirection);
             int newSantaY = rudolf.y + (D * yDirection);
 
-            System.out.println("newSantaX = " + newSantaX);
-            System.out.println("newSantaY = " + newSantaY);
+            // System.out.println("newSantaX = " + newSantaX);
+            // System.out.println("newSantaY = " + newSantaY);
 
             // 맵 밖이라면 산타 탈락 및 맵 변경
             if (!inMap(newSantaX, newSantaY)) {
@@ -223,6 +223,7 @@ public class Main {
             else {
                 // 아무도 없으면
                 if (map[newSantaX][newSantaY] == 0) {
+                    map[santa.x][santa.y] = 0;
                     setSanta(santa, newSantaX, newSantaY);
                     santaStatus[santa.num - 1] = 1;
                 } 
@@ -330,8 +331,8 @@ public class Main {
         else {
             int santaNum = map[rnx][rny];
             Santa crushSanta = santaList.get(santaNum - 1);
-            System.out.println("루돌프 이동으로 충돌 발생!!");
-            System.out.println(crushSanta.num + "번 산타 " + "[ " + crushSanta.x + ", " + crushSanta.y + "] 에서 충돌!!");
+            // System.out.println("루돌프 이동으로 충돌 발생!!");
+            // System.out.println(crushSanta.num + "번 산타 " + "[ " + crushSanta.x + ", " + crushSanta.y + "] 에서 충돌!!");
 
             // 산타 점수 추가
             crushSanta.score += C;
@@ -340,19 +341,19 @@ public class Main {
             int xDirection = crushSanta.x - rudolf.x;
             int yDirection = crushSanta.y - rudolf.y;
 
-            System.out.println("xDirection = " + xDirection);
-            System.out.println("yDirection = " + yDirection);
+            // System.out.println("xDirection = " + xDirection);
+            // System.out.println("yDirection = " + yDirection);
 
             // 착지할 위치 구하기
             int newSantaX = crushSanta.x + (C * xDirection);
             int newSantaY = crushSanta.y + (C * yDirection);
             
-            System.out.println("newSantaX = " + newSantaX);
-            System.out.println("newSantaY = " + newSantaY);
+            // System.out.println("newSantaX = " + newSantaX);
+            // System.out.println("newSantaY = " + newSantaY);
 
             // 루돌프 이동
             map[rudolf.x][rudolf.y] = 0;
-            System.out.println("rnx = " + rnx + ", rny = " + rny);
+            // System.out.println("rnx = " + rnx + ", rny = " + rny);
             map[rnx][rny] = -1;
             rudolf.x = rnx;
             rudolf.y = rny;
@@ -368,7 +369,7 @@ public class Main {
                 if (map[newSantaX][newSantaY] == 0) {
                     // 산타 착지 및 맵 변경
                     setSanta(crushSanta, newSantaX, newSantaY);
-                    System.out.println("crushSanta.num = " + crushSanta.num);
+                    // System.out.println("crushSanta.num = " + crushSanta.num);
                     // 산타 기절
                     santaStatus[crushSanta.num - 1] = 1;
                 } 
