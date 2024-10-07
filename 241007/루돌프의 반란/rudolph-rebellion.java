@@ -102,7 +102,7 @@ public class Main {
         // }
 
         for (int no = 1; no <= M; no++) {
-            // System.out.println("START TURN + " + no);
+            // System.out.println("START TURN " + no);
             game(no);
             // System.out.println("AFTER TURN" + no);
             // for (int[] row : map) {
@@ -374,10 +374,12 @@ public class Main {
                 } 
                 // 해당 위치에 산타가 있다면
                 else {
+                    // System.out.println("연쇄");
                     while (true) {
                         // 다음 위치 산타 구하기
                         Santa newSanta = findNextSanta(newSantaX, newSantaY);
 
+                        // System.out.println("### " + crushSanta.num + " // " + newSantaX + " // " + newSantaY);
                         // 산타 착지 및 맵 변경
                         setSanta(crushSanta, newSantaX, newSantaY);
                         
@@ -392,7 +394,6 @@ public class Main {
                         if (!inMap(newSantaX, newSantaY)) {
                             // 밀려난 산타 탈락 및 맵 변경
                             santaStatus[newSanta.num - 1] = 2;
-                            map[newSanta.x][newSanta.y] = 0;
                             break;
                         } 
                         // 밀려난 위치가 맵 안이라면
