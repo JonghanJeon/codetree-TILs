@@ -66,7 +66,7 @@ public class Main {
         map = new int[n + 1][n + 1];
         points = new int[p + 1];
         stun = new int[p + 1];
-        is_live = new boolean[n + 1];
+        is_live = new boolean[p + 1];
 
         st = new StringTokenizer(br.readLine());
         rudolf = new Pair(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
