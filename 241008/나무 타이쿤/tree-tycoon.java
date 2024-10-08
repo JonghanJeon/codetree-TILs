@@ -77,13 +77,11 @@ public class Main {
                         int px = x;
                         int py = y;
 
-                        int nx = px + dx[dir] * amount;
-                        if (nx >= 0) nx = nx % n;
-                        else nx = n + (nx % n);
+                        int nx = (px + dx[dir] * amount) % n;
+                        if (nx < 0) nx += n;  // 음수 인덱스 방지
 
-                        int ny = py + dy[dir] * amount;
-                        if (ny >= 0) ny = ny % n;
-                        else ny = n + (ny % n);
+                        int ny = (py + dy[dir] * amount) % n;
+                        if (ny < 0) ny += n;  // 음수 인덱스 방지
 
                         tonicBoard[px][py] = false;
                         moveTonic.add(new int[]{nx, ny});
@@ -91,9 +89,11 @@ public class Main {
                 }
             }
 
+            // System.out.println("TURN " + year);
             for (int[] pair : moveTonic) {
                 int x = pair[0];
                 int y = pair[1];
+                // System.out.println("x = " + x + ", y = " + y);
                 tonicBoard[x][y] = true;
             }
 
