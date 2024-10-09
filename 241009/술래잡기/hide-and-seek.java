@@ -211,7 +211,7 @@ public class Main {
             int cy = cur.y;
             while(true) {
                 if (!inGrid(cx, cy)) break;
-                if (cx == cur.x + 3 || cy == cur.y + 3) break;
+                if (Math.abs(cx - cur.x) == 3 || Math.abs(cy - cur.y) == 3) break;
                 // System.out.println("cx = " + cx + ", cy = " + cy);
                 // System.out.println(runGrid[cx][cy].size());
                 // System.out.println(treeGrid[cx][cy]);
