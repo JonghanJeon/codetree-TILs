@@ -196,10 +196,11 @@ public class Main {
             int cy = cur.y;
             while(true) {
                 // System.out.println("cx = " + cx + ", cy = " + cy);
-                if (cx == n || cy == n) break;
+                if (cx == n || cy == n || cx == -1 || cy == -1) break;
 
                 // 나무가 없고, 도망자가 있는 경우 잡히고 술래 점수 추가
                 if (!treeGrid[cx][cy] && runGrid[cx][cy] > 0) {
+                    // System.out.println("catch!");
                     int runnerId = runGrid[cx][cy];
                     runGrid[cx][cy] = 0;
                     isLive[runnerId] = false;
