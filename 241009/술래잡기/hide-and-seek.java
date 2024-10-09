@@ -142,6 +142,14 @@ public class Main {
         curNum = 0;
         delta = 1;
 
+        // System.out.println("INIT BOARD");
+        // for (int i = 0; i < n; i++) {
+        //     for (int j = 0; j < n; j++) {
+        //         System.out.print(runGrid[i][j].size() + " ");
+        //     }
+        //     System.out.println();
+        // }
+
         for (int t = 1; t <= k; t++) {
 
             // //도망자 움직임
@@ -153,6 +161,14 @@ public class Main {
                     runnerMove(runner);
                 }
             }
+
+            // System.out.println("BOARD TURN " + t);
+            // for (int i = 0; i < n; i++) {
+            //     for (int j = 0; j < n; j++) {
+            //         System.out.print(runGrid[i][j].size() + " ");
+            //     }
+            //     System.out.println();
+            // }
 
             //술래 움직임
             // if (cur.x == (n / 2) && cur.y == (n / 2)) {
@@ -195,11 +211,13 @@ public class Main {
             int cy = cur.y;
             while(true) {
                 if (!inGrid(cx, cy)) break;
+                if (cx == cur.x + 3 || cy == cur.y + 3) break;
                 // System.out.println("cx = " + cx + ", cy = " + cy);
                 // System.out.println(runGrid[cx][cy].size());
                 // System.out.println(treeGrid[cx][cy]);
                 // 나무가 없고, 도망자가 있는 경우 잡히고 술래 점수 추가
                 if (!treeGrid[cx][cy] && runGrid[cx][cy].size() > 0) {
+                    // System.out.println("catch!");
                     ans += (t * runGrid[cx][cy].size());
                     Iterator<Integer> iterator = runGrid[cx][cy].keySet().iterator();
                     while (iterator.hasNext()) {
