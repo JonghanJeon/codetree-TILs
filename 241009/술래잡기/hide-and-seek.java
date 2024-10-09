@@ -65,7 +65,7 @@ public class Main {
     //      x, y (좌표), d(1인 경우 좌우 움직임, 2인 경우 상하 움직임)
     // 나무의 개수 h
     public static int n, m, h, k;
-    public static int[][] runGrid;
+    public static Map<Integer, Runner>[][] runGrid;
     public static boolean[][] treeGrid;
     public static Pair cur; // 술래
     public static Runner[] runnerArr;
@@ -103,7 +103,14 @@ public class Main {
         m = Integer.parseInt(st.nextToken());
         h = Integer.parseInt(st.nextToken());
         k = Integer.parseInt(st.nextToken());
-        runGrid = new int[n][n];
+        runGrid = new HashMap[n][n];
+
+        for(int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                runGrid[i][j] = new HashMap<>();
+            }
+        }
+
         treeGrid = new boolean[n][n];
         cur = new Pair(n / 2, n / 2);
         runnerArr = new Runner[m + 1];
@@ -117,7 +124,7 @@ public class Main {
             int type = Integer.parseInt(st.nextToken());
             Runner runner = new Runner(x, y, i, type, 0);
             runnerArr[i] = runner;
-            runGrid[x][y] = i;
+            runGrid[x][y].put(i, runner);
             isLive[i] = true;
         }
 
@@ -135,35 +142,17 @@ public class Main {
         curNum = 0;
         delta = 1;
 
-        // for (int i = 0 ; i < n; i ++) {
-        //     for (int j = 0 ; j < n ; j ++) {
-        //         System.out.print(runGrid[i][j] + " ");
-        //     }
-        //     System.out.println();
-        // }
-
         for (int t = 1; t <= k; t++) {
 
-            //도망자 움직임
+            // //도망자 움직임
             for (int i = 1; i <= m; i++) {
                 Runner runner = runnerArr[i];
-                // 탈락한 도망자는 넘어감
-                if (!isLive[i]) continue;
-                
-                // 거리 3 초과시 넘어감
                 int dist = getDistance(runner);
-                if (dist > 3) continue;
 
-                runnerMove(runner);
+                if(isLive[i] && dist <= 3) {
+                    runnerMove(runner);
+                }
             }
-
-            // System.out.println("RUNNER GRID TURN " + t);
-            // for (int i = 0 ; i < n; i ++) {
-            //     for (int j = 0 ; j < n ; j ++) {
-            //         System.out.print(runGrid[i][j] + " ");
-            //     }
-            //     System.out.println();
-            // }
 
             //술래 움직임
             // if (cur.x == (n / 2) && cur.y == (n / 2)) {
@@ -175,41 +164,58 @@ public class Main {
 
             cur.x += dir[0];
             cur.y += dir[1];
+            // System.out.println("cur.x = " + cur.x + ", cur.y = " + cur.y);
             curNum += 1;
 
+
             // 이동 방향이 틀어지는 지점이라면 즉시 방향 전환.
-            if (curNum == moveNum) {
-                if (cur.x == (n / 2) && cur.y == (n / 2)) {
-                    moveDir = 0; moveNum = 1; curNum = 0; delta = 1;
-                } else if (cur.x == 0 && cur.y == 0) {
-                    moveDir = 2; moveNum = n - 1; curNum = 0; delta = -1;
-                } else {
+            if (cur.x == (n / 2) && cur.y == (n / 2)) {
+                moveDir = 0; moveNum = 1; curNum = 0; delta = 1;
+            } else if (cur.x == 0 && cur.y == 0) {
+                moveDir = 2; moveNum = n - 1; curNum = 0; delta = -1;
+            } else if (delta == -1 && cur.x == (n - 1) && cur.y == 0) {
+                moveDir = 1; moveNum = n - 1; curNum = 0; delta = -1;
+            } else {
+                if (curNum == moveNum) {
                     moveDir = (moveDir + delta) % 4;
                     if (moveDir < 0) moveDir += 4;
                     curNum = 0;
+                    
+                    if (delta == -1) { // 역방향일때는 좌 또는 우일때 moveNum - 1;
+                        if (moveDir == 1 || moveDir == 3) moveNum -= 1;
+                    } else { // 정방향일때는 아래 또는 위 일때 moveNum + 1;
+                        if (moveDir == 0 || moveDir == 2) moveNum += 1;
+                    }
                 }
-                
-                dir = curDir[moveDir];
             }
+
+            dir = curDir[moveDir];
 
             int cx = cur.x;
             int cy = cur.y;
             while(true) {
+                if (!inGrid(cx, cy)) break;
                 // System.out.println("cx = " + cx + ", cy = " + cy);
-                if (cx == n || cy == n || cx == -1 || cy == -1) break;
-
+                // System.out.println(runGrid[cx][cy].size());
+                // System.out.println(treeGrid[cx][cy]);
                 // 나무가 없고, 도망자가 있는 경우 잡히고 술래 점수 추가
-                if (!treeGrid[cx][cy] && runGrid[cx][cy] > 0) {
-                    // System.out.println("catch!");
-                    int runnerId = runGrid[cx][cy];
-                    runGrid[cx][cy] = 0;
-                    isLive[runnerId] = false;
-                    ans += t;
+                if (!treeGrid[cx][cy] && runGrid[cx][cy].size() > 0) {
+                    ans += (t * runGrid[cx][cy].size());
+                    Iterator<Integer> iterator = runGrid[cx][cy].keySet().iterator();
+                    while (iterator.hasNext()) {
+                        Integer id = iterator.next();
+                        Runner runner = runGrid[cx][cy].get(id);
+                        if (runner != null) {
+                            isLive[runner.id] = false;
+                            iterator.remove();  // iterator를 통해 안전하게 삭제
+                        }
+                    }
                 }
 
                 cx += dir[0];
                 cy += dir[1];
             }
+
         }
 
         System.out.println(ans);
@@ -225,21 +231,21 @@ public class Main {
 
         // 격자 안일때
         // 해당 칸에 술래가 없다면 이동
-        if (inGrid(nx, ny) && !(nx == cur.x && ny == cur.y)) {
-            runGrid[runner.x][runner.y] = 0;
-            runner.x = nx; runner.y = ny;
-            runGrid[runner.x][runner.y] = runner.id;
-        } 
-        // 격자 밖일 때
-        else {
+        if (inGrid(nx, ny)) {
+            if (!(nx == cur.x && ny == cur.y)) {
+                runGrid[runner.x][runner.y].remove(runner.id);
+                runner.x = nx; runner.y = ny;
+                runGrid[runner.x][runner.y].put(runner.id, runner);
+            }
+        } else { // 격자 밖일때
             runner.dir = (runner.dir + 1) % 2;
             nx = runner.x + runnerDir[runner.dir][0];
             ny = runner.y + runnerDir[runner.dir][1];
             // 격자 안이고 술래가 없다면 이동
             if (inGrid(nx, ny) && !(nx == cur.x && ny == cur.y)) {
-                runGrid[runner.x][runner.y] = 0;
+                runGrid[runner.x][runner.y].remove(runner.id);
                 runner.x = nx; runner.y = ny;
-                runGrid[runner.x][runner.y] = runner.id;
+                runGrid[runner.x][runner.y].put(runner.id, runner);
             }
         }
     }
