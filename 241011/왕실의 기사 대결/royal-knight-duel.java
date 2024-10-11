@@ -133,56 +133,41 @@ public class Main {
 	}
 	
 	static void moveKnight(int i, int d) {
-		Queue<Integer> q = new LinkedList<Integer>();
-		q.add(i);
-		boolean[] moved = new boolean[N + 1];
-		Stack<Integer> stk = new Stack<Integer>();
-		
-		while (!q.isEmpty()) {
-			int id = q.poll();
-			Knight knight = arr[id];
-			moved[id] = true;
-			stk.push(id);
-			
-			for (int x = knight.x1; x <= knight.x2; x++) {
-				for (int y = knight.y1; y <= knight.y2; y++) {
-					int nx = x + dx[d];
-					int ny = y + dy[d];
-					
-					if (knightMap[nx][ny] > 0 && knightMap[nx][ny] != id) {
-						if (moved[knightMap[nx][ny]]) continue;
-						
-						q.add(knightMap[nx][ny]);
-						moved[knightMap[nx][ny]] = true;
-					}
-				}
-			}
-		}
-		
-		while (!stk.isEmpty()) {
-			int id = stk.pop();
-			
-			switch(d) {
-				case 0:
-					moveUp(id, d);
-					break;
-				case 1:
-					moveRight(id, d);
-					break;
-				case 2:
-					moveDown(id, d);
-					break;
-				case 3:
-					moveLeft(id, d);
-					break;
-			}
-			
-			Knight knight = arr[id];
-			knight.x1 += dx[d]; knight.x2 += dx[d];
-			knight.y1 += dy[d]; knight.y2 += dy[d];
-			isPushed[id] = true;
-		}
-	}
+        for (int r = arr[i].x1; r <= arr[i].x2; r++) {
+            for (int c = arr[i].y1; c <= arr[i].y2; c++) {
+                int nr = r + dx[d];
+                int nc = c + dy[d];
+
+                int newId = knightMap[nr][nc];
+
+                if (newId == 0 || newId == i) {
+                    continue;
+                }
+
+                // 이동하려는 위치에 다른 기사가 있다면 그 기사도 함께 연쇄적으로 한 칸 밀려난다.
+                moveKnight(newId, d);
+            }
+        }
+
+        switch (d) {
+            case 0:
+                moveUp(i, d);
+                break;
+            case 1:
+                moveRight(i, d);
+                break;
+            case 2:
+                moveDown(i, d);
+                break;
+            case 3:
+                moveLeft(i, d);
+                break;
+        }
+
+        isPushed[i] = true;
+        arr[i].x1 += dx[d]; arr[i].x2 += dx[d];
+        arr[i].y1 += dy[d]; arr[i].y2 += dy[d];
+    }
 	
 	static void moveUp(int id, int d) {
 		Knight knight = arr[id];
