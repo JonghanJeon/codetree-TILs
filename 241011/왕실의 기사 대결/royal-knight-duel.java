@@ -2,117 +2,119 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-	
-	static int l, n, q;
-	static int r, c, h, w, k;
+
+	// L: 격자 사이즈
+	// N: 기사 사이즈
+	// Q: 명령 사이즈
+	static int L, N, Q;
 	static int[][] map;
-	static boolean[] isLive;
-	static int[][] nightMap;
-	static int answer = 0;
 	static Knight[] arr;
+	static int[][] knightMap;
+	static boolean[] isLive;
 	static boolean[] isPushed;
 	
-	// 위 오 아래 왼
+	// 위 오른쪽 아래 왼쪽
 	static int[] dx = {-1, 0, 1, 0};
 	static int[] dy = {0, 1, 0, -1};
 	
 	static class Knight {
-		int x1, y1, x2, y2, h, w;
+		int x1, x2, y1, y2;
 		int hp, damage;
 		
-		public Knight(int x, int y, int h, int w, int k) {
-			this.x1 = x;
-			this.y1 = y;
-			this.h = h;
-			this.w = w;
-			this.x2 = x + h;
-			this.y2 = y + w;
-			this.hp = k;
-			this.damage = 0;
+		public Knight(int r, int c, int h, int w, int k) {
+			x1 = r; y1 = c;
+			x2 = r + h - 1; y2 = c + w - 1;
+			hp = k; damage = 0;
 		}
 	}
 	
 	static boolean inMap(int x, int y) {
-		return 1 <= x && x <= n && 0 <= y && y <= n;
+		return 1 <= x && x <= L && 1 <= y && y <= L;
 	}
 	
-	public static void main(String[] args) throws IOException{
+	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st;
 		
 		st = new StringTokenizer(br.readLine());
-		l = Integer.parseInt(st.nextToken());
-		n = Integer.parseInt(st.nextToken());
-		q = Integer.parseInt(st.nextToken());
-		arr = new Knight[n + 1];
-		map = new int[l + 1][l + 1];
-		nightMap = new int[l + 1][l + 1];
-		isLive = new boolean[n + 1];
+		L = Integer.parseInt(st.nextToken());
+		N = Integer.parseInt(st.nextToken());
+		Q = Integer.parseInt(st.nextToken());
+		arr = new Knight[N + 1];
+		map = new int[L + 1][L + 1];
+		knightMap = new int[L + 1][L + 1];
+		isLive = new boolean[N + 1];
 		
-		for (int i = 1; i <= l; i++) {
+		for (int i = 1; i <= L; i++) {
 			st = new StringTokenizer(br.readLine());
-			for (int j = 1; j <= l; j++) {
+			for (int j = 1; j <= L; j++) {
 				map[i][j] = Integer.parseInt(st.nextToken());
 			}
 		}
 		
-		for (int i = 1; i <= n; i++) {
+		for (int i = 1; i <= N; i++) {
 			st = new StringTokenizer(br.readLine());
-			r = Integer.parseInt(st.nextToken());
-			c = Integer.parseInt(st.nextToken());
-			h = Integer.parseInt(st.nextToken()) - 1;
-			w = Integer.parseInt(st.nextToken()) - 1;
-			k = Integer.parseInt(st.nextToken());
+			int r = Integer.parseInt(st.nextToken());
+			int c = Integer.parseInt(st.nextToken());
+			int h = Integer.parseInt(st.nextToken());
+			int w = Integer.parseInt(st.nextToken());
+			int k = Integer.parseInt(st.nextToken());
 			arr[i] = new Knight(r, c, h, w, k);
-			isLive[i] = true;
-			int x1 = arr[i].x1; int y1 = arr[i].y1;
-			int x2 = arr[i].x2; int y2 = arr[i].y2;
-			
-			for (int r = x1; r <= x2; r++) {
-				for (int c = y1; c <= y2; c++) {
-					nightMap[r][c] = i;
+			for (int x = arr[i].x1; x <= arr[i].x2; x++) {
+				for (int y = arr[i].y1; y <= arr[i].y2; y++) {
+					knightMap[x][y] = i;
 				}
 			}
+			isLive[i] = true; 
 		}
 		
-		for (int t = 0; t < q; t++) {
+		for (int t = 1; t <= Q; t++) {
+//			System.out.println("START TURN " + t);
 			st = new StringTokenizer(br.readLine());
 			int i = Integer.parseInt(st.nextToken());
 			int d = Integer.parseInt(st.nextToken());
 			
+			isPushed = new boolean[N + 1];
+			
+			// 살아있지 않은 기사는 skip
 			if (!isLive[i]) continue;
 			
-			isPushed = new boolean[n + 1];
-			
-			// 움직일 수 있다면
 			if (movePossible(i, d)) {
-				
-				// 움직이기
+//				System.out.println("MOVE !!!");
 				moveKnight(i, d);
 				isPushed[i] = false;
 				checkDamage();
 			}
 			
+//			System.out.println("AFTER TURN " + t);
+//			for (int a = 1; a <= N; a++) {
+//				Knight knight = arr[a];
+//				System.out.println(knight.x1 + " // " + knight.y1);
+//			}
 		}
 		
-		for (int a = 1; a <= n; a++) {
-			if (!isLive[a]) continue;
-			answer += arr[a].damage;
+		int answer = 0;
+		for (int i = 1; i <= N; i++) {
+			if (!isLive[i]) continue;
+			
+			answer += arr[i].damage;
 		}
+		
 		System.out.println(answer);
-		
 	}
 	
 	static void checkDamage() {
-		for (int j = 1; j <= n; j++) {
-			if (!isPushed[j]) continue; // 밀리지 않은 기사는 continue
+		for (int i = 1; i <= N; i++) {
+			if (!isLive[i]) continue;
+			if (!isPushed[i]) continue;
 			
-			// 밀려난 기사는 데미지 계산
-			Knight knight = arr[j];
+			Knight knight = arr[i];
 			int damage = 0;
 			for (int x = knight.x1; x <= knight.x2; x++) {
 				for (int y = knight.y1; y <= knight.y2; y++) {
-					if (map[x][y] == 1) damage++;
+					if (map[x][y] == 1) {
+						damage++;
+					}
 				}
 			}
 			
@@ -120,10 +122,10 @@ public class Main {
 			knight.damage += damage;
 			
 			if (knight.hp <= 0) {
-				isLive[j] = false;
+				isLive[i] = false;
 				for (int x = knight.x1; x <= knight.x2; x++) {
 					for (int y = knight.y1; y <= knight.y2; y++) {
-						nightMap[x][y] = 0;
+						knightMap[x][y] = 0;
 					}
 				}
 			}
@@ -131,104 +133,136 @@ public class Main {
 	}
 	
 	static void moveKnight(int i, int d) {
-		Knight knight = arr[i];
+		Queue<Integer> q = new LinkedList<Integer>();
+		q.add(i);
+		boolean[] moved = new boolean[N + 1];
+		Stack<Integer> stk = new Stack<Integer>();
+		
+		while (!q.isEmpty()) {
+			int id = q.poll();
+			Knight knight = arr[id];
+			moved[id] = true;
+			stk.push(id);
+			
+			for (int x = knight.x1; x <= knight.x2; x++) {
+				for (int y = knight.y1; y <= knight.y2; y++) {
+					int nx = x + dx[d];
+					int ny = y + dy[d];
+					
+					if (knightMap[nx][ny] > 0 && knightMap[nx][ny] != id) {
+						if (moved[knightMap[nx][ny]]) continue;
+						
+						q.add(knightMap[nx][ny]);
+						moved[knightMap[nx][ny]] = true;
+					}
+				}
+			}
+		}
+		
+		while (!stk.isEmpty()) {
+			int id = stk.pop();
+			
+			switch(d) {
+				case 0:
+					moveUp(id, d);
+					break;
+				case 1:
+					moveRight(id, d);
+					break;
+				case 2:
+					moveDown(id, d);
+					break;
+				case 3:
+					moveLeft(id, d);
+					break;
+			}
+			
+			Knight knight = arr[id];
+			knight.x1 += dx[d]; knight.x2 += dx[d];
+			knight.y1 += dy[d]; knight.y2 += dy[d];
+			isPushed[id] = true;
+		}
+	}
+	
+	static void moveUp(int id, int d) {
+		Knight knight = arr[id];
 		for (int x = knight.x1; x <= knight.x2; x++) {
 			for (int y = knight.y1; y <= knight.y2; y++) {
 				int nx = x + dx[d];
 				int ny = y + dy[d];
 				
-				if (nightMap[nx][ny] == 0 || nightMap[nx][ny] == i) continue;
-				
-				// 다른 기사 있으면 다른 기사도 움직여주기.
-				moveKnight(nightMap[nx][ny], d);
-			}
-		}
-		
-		if (d == 0) {
-			moveUp(i, d);
-		} else if (d == 1) {
-			moveRight(i, d);
-		} else if (d == 2) {
-			moveDown(i, d);
-		} else {
-			moveLeft(i, d);
-		}
-		
-		knight.x1 += dx[d];
-		knight.x2 += dx[d];
-		knight.y1 += dy[d];
-		knight.y2 += dy[d];
-		isPushed[i] = true;
-	}
-	
-	static void moveUp(int i, int d) {
-		Knight knight = arr[i];
-		
-		for (int x = knight.x1; x <= knight.x2; x++) {
-			for (int y = knight.y1; y <= knight.y2; y++) {
-				int nx = x + dx[d];
-				int ny = y + dy[d];
-				
-				nightMap[x][y] = 0;
-				nightMap[nx][ny] = i;
+				knightMap[x][y] = 0;
+				knightMap[nx][ny] = id;
 			}
 		}
 	}
-	
-	static void moveDown(int i, int d) {
-		Knight knight = arr[i];
+
+	static void moveDown(int id, int d) {
+		Knight knight = arr[id];
 		for (int x = knight.x2; x >= knight.x1; x--) {
 			for (int y = knight.y1; y <= knight.y2; y++) {
 				int nx = x + dx[d];
 				int ny = y + dy[d];
 				
-				nightMap[x][y] = 0;
-				nightMap[nx][ny] = i;
+				knightMap[x][y] = 0;
+				knightMap[nx][ny] = id;
 			}
 		}
 	}
 	
-	static void moveRight(int i, int d) {
-		Knight knight = arr[i];
+	static void moveRight(int id, int d) {
+		Knight knight = arr[id];
 		for (int x = knight.x1; x <= knight.x2; x++) {
 			for (int y = knight.y2; y >= knight.y1; y--) {
 				int nx = x + dx[d];
 				int ny = y + dy[d];
 				
-				nightMap[x][y] = 0;
-				nightMap[nx][ny] = i;
+				knightMap[x][y] = 0;
+				knightMap[nx][ny] = id;
 			}
 		}
 	}
 	
-	static void moveLeft(int i, int d) {
-		Knight knight = arr[i];
+	static void moveLeft(int id, int d) {
+		Knight knight = arr[id];
 		for (int x = knight.x1; x <= knight.x2; x++) {
 			for (int y = knight.y1; y <= knight.y2; y++) {
 				int nx = x + dx[d];
 				int ny = y + dy[d];
 				
-				nightMap[x][y] = 0;
-				nightMap[nx][ny] = i;
+				knightMap[x][y] = 0;
+				knightMap[nx][ny] = id;
 			}
 		}
 	}
 	
 	static boolean movePossible(int i, int d) {
-		for (int x = arr[i].x1; x <= arr[i].x2; x++) {
-			for (int y = arr[i].y1; y <= arr[i].y2; y++) {
-				int nx = x + dx[d];
-				int ny = y + dy[d];
-				
-				// 가려는 방향에 벽이 있다면 false
-				if (map[nx][ny] == 2) return false;
-				
-				// 가려는 방향이 빈 칸이거나 자기 자신인 경우 continue
-				if (nightMap[nx][ny] == 0 || nightMap[nx][ny] == i) continue;
-				
-				// 밀려날 칸에 다른 기사가 있다면 해당 기사 움직일 수 있는지 판단.
-				// 해당 기사가 밀려날 수 있으면 밀릴 수 있는거여.
-				if (!movePossible(nightMap[nx][ny], d)) return false;
+		Queue<Integer> q = new LinkedList<Integer>();
+		q.add(i);
+		boolean[] moved = new boolean[N + 1];
+		
+		while (!q.isEmpty()) {
+			int id = q.poll();
+//			System.out.println("id = " + id);
+			moved[id] = true;
+			Knight knight = arr[id];
+			
+			for (int x = knight.x1; x <= knight.x2; x++) {
+				for (int y = knight.y1; y <= knight.y2; y++) {
+					int nx = x + dx[d];
+					int ny = y + dy[d];
+					
+					// 벽이라면 false
+					if (!inMap(nx, ny)) return false;
+					if (map[nx][ny] == 2) return false;
+					// 이미 움직인 기사라면 continue
+					if (moved[knightMap[nx][ny]]) continue;
+					// 기사가 있고 해당 기사가 본인이 아닌경우
+					if (knightMap[nx][ny] > 0 && knightMap[nx][ny] != id) {
+						q.add(knightMap[nx][ny]);
+						moved[knightMap[nx][ny]] = true;
+					}
+				}
 			}
 		}
 		
