@@ -135,7 +135,7 @@ public class Main {
         int minY = -1;
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
-                if (map[i][j] == 0) continue;
+                if (map[i][j] <= 0) continue;
 
                 if (map[i][j] < power) {
                     power = map[i][j];
@@ -215,7 +215,7 @@ public class Main {
         int maxY = -1;
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
-                if (map[i][j] == 0) continue;
+                if (map[i][j] <= 0) continue;
                 if (i == atkX && j == atkY) continue;
 
                 if (map[i][j] > power) {
