@@ -76,8 +76,7 @@ public class Main {
 		}
 		
 		for (int t = 1; t <= K; t++) {
-			 // 부서지지 않은 포탑이 1개가 된다면 그 즉시 중지
-			if (tankNum == 1) break;
+			if (isFinish()) break;
 			
 			isAttacked = new boolean[N][M];
 			
@@ -102,14 +101,12 @@ public class Main {
 			// 정비
 			for (int i = 0; i < N; i++) {
 				for (int j = 0; j < M; j++) {
-					if (map[i][j] > 0) tankNum++;
 					if (map[i][j] <= 0) continue;
 					if (isAttacked[i][j]) continue;
 					map[i][j]++;
 				}
 			}
 			
-			if (tankNum == 1) break;
 		}
 		
 		int maxPower = Integer.MIN_VALUE;
@@ -243,5 +240,16 @@ public class Main {
 			map[nx][ny] -= power;
 			isAttacked[nx][ny] = true;
 		}
+	}
+	
+	static boolean isFinish() {
+		int count = 0;
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < M; j++) {
+				if (map[i][j] == 0)	continue;
+				count++;
+			}
+		}
+		return count == 1;
 	}
 }
