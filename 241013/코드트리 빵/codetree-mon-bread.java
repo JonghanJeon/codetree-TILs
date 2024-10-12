@@ -69,6 +69,9 @@ public class Main {
 			Pair start = people[i];
 			Pair end = store[i];
 			
+			if (start.x == -1 && start.y == -1)
+				continue;
+			
 			if (!inMap(start.x, start.y))
 				continue;
 			
@@ -119,23 +122,24 @@ public class Main {
 	
 	static void moveBasecamp(Pair start) {
 		int sx = start.x; int sy = start.y;
-		Queue<Pair> q = new LinkedList<Main.Pair>();
+		
+		Queue<int[]> q = new LinkedList<>();
 		boolean[][] visited = new boolean[n][n];
 		visited[sx][sy] = true;
-		q.add(new Pair(sx, sy));
+		q.add(new int[] {sx, sy, 0});
+		
+		List<int[]> list = new ArrayList<int[]>();
 		
 		while(!q.isEmpty()) {
-			Pair cur = q.poll();
+			int[] cur = q.poll();
 			
-			if (map[cur.x][cur.y] == 1) {
-				map[cur.x][cur.y] = -1;
-				people[time - 1] = cur;
-				return;
+			if (map[cur[0]][cur[1]] == 1) {
+				list.add(new int[] {cur[0], cur[1], cur[2]});
 			}
 			
 			for (int d = 0; d < 4; d++) {
-				int nx = cur.x + dx[d];
-				int ny = cur.y + dy[d];
+				int nx = cur[0] + dx[d];
+				int ny = cur[1] + dy[d];
 				
 				if (!inMap(nx, ny))
 					continue;
@@ -146,10 +150,26 @@ public class Main {
 				if (map[nx][ny] == -1)
 					continue;
 				
-				q.add(new Pair(nx, ny));
+				q.add(new int[] {nx, ny, cur[2] + 1});
 				visited[nx][ny] = true;
 			}
 		}
+		
+		if (list.size() > 1) {
+			Collections.sort(list, (o1, o2) -> {
+				if (o1[2] == o2[2]) {
+					if (o1[0] == o2[0]) {
+						return o1[1] - o2[1];
+					}
+					return o1[0] - o2[0];
+				}
+				return o1[2] - o2[2];
+			});
+		}
+		
+		int[] baseCamp = list.get(0);
+		map[baseCamp[0]][baseCamp[1]] = -1;
+		people[time - 1] = new Pair(baseCamp[0], baseCamp[1]);
 	}
 	
 	static boolean isFinish() {
