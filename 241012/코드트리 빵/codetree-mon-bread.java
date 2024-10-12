@@ -14,6 +14,14 @@ public class Main {
 	static int[] dx = {-1, 0, 0, 1};
 	static int[] dy= {0, -1, 1, 0};
 	
+	static class Loca {
+		int x, y;
+		
+		Loca(int x, int y) {
+			this.x = x; this.y = y;
+		}
+	}
+	
 	static class Pair {
 		int x, y;
 		int tx, ty;
@@ -105,30 +113,42 @@ public class Main {
 			// 도착한 사람은 움직이지 않음.
 			if (isArrive[i]) continue;
 			
-			int dist = Math.abs(people[i].tx - people[i].x) + Math.abs(people[i].ty - people[i].y);
+			int dir = bfs(i);
+			people[i].x += dx[dir];
+			people[i].y += dy[dir];
+			
+			
+		}
+	}
+	
+	static int bfs(int i) {
+		int sx = people[i].x; int sy = people[i].y;
+		Queue<int[]> q = new LinkedList<int[]>();
+		q.add(new int[] {sx, sy, -1});
+		boolean[][] visited = new boolean[n][n];
+		visited[sx][sy] = true;
+		
+		while(!q.isEmpty()) {
+			int[] cur = q.poll();
+			if (cur[0] == people[i].tx && cur[1] == people[i].ty) return cur[2];
 			
 			for (int d = 0; d < 4; d++) {
-				int nx = people[i].x + dx[d];
-				int ny = people[i].y + dy[d];
-
-                // System.out.println("People " + i + ", nx = " + nx + ", ny = " + ny + ", tx = " + people[i].tx + ", ty = " + people[i].ty);
+				int nx = cur[0] + dx[d];
+				int ny= cur[1] + dy[d];
 				
-				// 격자 밖
 				if (!inMap(nx, ny)) continue;
-                // System.out.println("trigger 1");
-				// 이동 불가 칸
 				if (map[nx][ny] == -1) continue;
-                // System.out.println("trigger 2");
 				
-				int value = Math.abs(people[i].tx - nx) + Math.abs(people[i].ty - ny);
-				// 멀리가는 칸
-				if (dist < value) continue;
-                // System.out.println("trigger 3");
-				
-				people[i].x = nx; people[i].y = ny;
-				break;
+				visited[nx][ny] = true;
+				// 처음 방향만 넘겨주어야 해서 -1 일때 (처음일때)만 방향 넘겨주고 그 이후로는 같은 방향 넘겨줌.
+				if (cur[2] == -1) {
+					q.add(new int[] {nx, ny, d});
+				} else {
+					q.add(new int[] {nx, ny, cur[2]});
+				}
 			}
 		}
+		return -1;
 	}
 	
 	static int[] findBaseCamp(int t) {
