@@ -160,33 +160,35 @@ public class Main {
 	}
 	
 	static int[] findBaseCamp(int t) {
-		int tx = people[t].tx; int ty = people[t].ty;
-		int bx = 0; int by = 0;
-		int dist = Integer.MAX_VALUE;
-		
-		for (int x = 0; x < n; x++) {
-			for (int y = 0; y < n; y++) {
-				// 베이스캠프가 아니거나, 갈 수 없는 베이스 캠프일 경우
-				if (map[x][y] == 0 || map[x][y] == -1)	continue;
-				
-				int value = Math.abs(tx - x) + Math.abs(ty - y);
-				
-				if (value < dist) {
-					bx = x; by = y; dist = value;
+		// 상 좌 우 하
+		int[] ddx = {-1, 0, 0, 1};
+		int[] ddy = {0, -1, 1, 0};
+		int sx = people[t].tx; int sy = people[t].ty;
+		boolean[][] visited = new boolean[n][n];
+		visited[sx][sy] = true;
+		Queue<int[]> q = new LinkedList<>();
+		q.add(new int[] {sx, sy});
+
+		while(!q.isEmpty()) {
+			int[] cur = q.poll();
+			if (map[cur[0]][cur[1]] == 1)
+				return new int[] {cur[0], cur[1]};
+
+			for (int d = 0; d < 4; d++) {
+				int nx = cur[0] + ddx[d];
+				int ny = cur[1] + ddy[d];
+
+				if (!inMap(nx, ny)) 
 					continue;
-				} else if (value > dist) continue;
-				
-				if (x < bx) {
-					bx = x; by = y;
+
+				if (visited[nx][ny])
 					continue;
-				} else if (x > bx) continue;
-				
-				if (y < by) {
-					bx = x; by = y;
-				}
+
+				visited[nx][ny] = true;
+				q.add(new int[] {nx, ny});
 			}
 		}
 		
-		return new int[] {bx, by};
+		return new int[] {-1, -1};
 	}
 }
