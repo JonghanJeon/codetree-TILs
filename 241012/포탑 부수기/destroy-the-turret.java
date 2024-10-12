@@ -89,7 +89,7 @@ public class Main {
 			map[attacker[0]][attacker[1]] += (N + M);
 			
 			// 공격대상 선정
-			int[] target = findTarget(attacker[0], attacker[1]);
+			int[] target = findTarget(attacker);
 			isAttacked[target[0]][target[1]] = true;
 			
 			// 공격
@@ -127,56 +127,91 @@ public class Main {
 		 * 4. 열 값이 가장 큰 포탑
 		 */
 		// 0, 1 : x, y // 2: power // 3. lastAttack
-		List<int[]> list = new ArrayList<int[]>();
+		int power = Integer.MAX_VALUE;
+		int ai = 0, aj = 0;
 		for (int i = 0; i < N; i++) {
-			for (int j = 1; j < M; j++) {
-				if (map[i][j] <= 0) continue;
-				list.add(new int[] {i, j, map[i][j], lastAttack[i][j]});
+			for (int j = 0; j < M; j++) {
+				if (map[i][j] == 0)	continue;
+				
+				// 1. 공격력이 가장 낮은 포탑
+				if (map[i][j] < power) {
+					power = map[i][j];
+					ai = i;
+					aj = j;
+					continue;
+				} else if (map[i][j] > power)	continue;
+
+				// 2. 가장 최근에 공격한 포탑
+				if (lastAttack[i][j] > lastAttack[ai][aj]) {
+					ai = i;
+					aj = j;
+					continue;
+				} else if (lastAttack[i][j] < lastAttack[ai][aj])
+					continue;
+				
+				// 3. 행과 열의 합이 가장 큰 포탑
+				if (i + j > ai + aj) {
+					ai = i;
+					aj = j;
+					continue;
+				} else if (i + j < ai + aj)	continue;
+					
+				// 4. 열 값이 가장 큰 포탑
+				if (j > aj) {
+					ai = i;
+					aj = j;
+				}
 			}
 		}
-		Collections.sort(list, (o1, o2) -> {
-			if (o1[2] == o2[2]) {
-				if (o1[3] == o2[3]) {
-					if ((o1[0] + o1[1]) == (o2[0] + o2[1])) {
-						return o2[1] - o1[1]; // 4. 열 값이 큰 포탑
-					}
-					return (o2[0] + o2[1]) - (o1[0] + o1[1]); // 3. 행과 열의 합이 큰 포탑
-				}
-				return o2[3] - o1[3]; // 2. 가장 최근에 공격한 포탑
-			}
-			return o1[2] - o2[2]; //1. 공격력이 낮은 포탑
-		});
-		return new int[] {list.get(0)[0], list.get(0)[1]};
+
+		return new int[] { ai, aj };
 	}
 	
-	static int[] findTarget(int atkX, int atkY) {
+	static int[] findTarget(int[] attacker) {
 		/*
 		 * 1. 공격력이 가장 높은 포탑이 가장 강한 포탑입니다.
 			2. 공격한지 가장 오래된 포탑이 가장 강한 포탑입니다. (모든 포탑은 시점 0에 모두 공격한 경험이 있다고 가정하겠습니다.)
 			3. 행과 열의 합이 가장 작은 포탑이 가장 강한 포탑입니다.
 			4. 열 값이 가장 작은 포탑이 가장 강한 포탑입니다.
 		 */
-		List<int[]> list = new ArrayList<int[]>();
+		int power = -1;
+		int ti = 0, tj = 0;
 		for (int i = 0; i < N; i++) {
-			for (int j = 1; j < M; j++) {
-				if (map[i][j] <= 0) continue;
-				if (i == atkX && j == atkY) continue;
-				list.add(new int[] {i, j, map[i][j], lastAttack[i][j]});
+			for (int j = 0; j < M; j++) {
+				if (map[i][j] == 0)	continue;
+				if (i == attacker[0] && j == attacker[1])	continue;
+				
+				// 1. 공격력 높은 포탑
+				if (map[i][j] > power) {
+					power = map[i][j];
+					ti = i;
+					tj = j;
+					continue;
+				} else if (map[i][j] < power)	continue;
+				
+				// 2. 공격한지 가장 오래된 포탑
+				if (lastAttack[i][j] < lastAttack[ti][tj]) {
+					ti = i;
+					tj = j;
+					continue;
+				} else if (lastAttack[i][j] > lastAttack[ti][tj])
+					continue;
+				
+				// 3. 행과 열의 합이 가장 작은 포탑
+				if (i + j < ti + tj) {
+					ti = i;
+					tj = j;
+					continue;
+				} else if (i + j > ti + tj)	continue;
+				
+				// 4. 열 값이 가장 작은 포탑
+				if (j < tj) {
+					ti = i;
+					tj = j;
+				}
 			}
 		}
-		Collections.sort(list, (o1, o2) -> {
-			if (o1[2] == o2[2]) {
-				if (o1[3] == o2[3]) {
-					if ((o1[0] + o1[1]) == (o2[0] + o2[1])) {
-						return o1[1] - o2[1]; // 4. 열 값이 작은 포탑
-					}
-					return (o1[0] + o1[1]) - (o2[0] + o2[1]); // 3. 행과 열의 합이 작은 포탑
-				}
-				return o1[3] - o2[3]; // 2. 가장 오래전에 공격한 포탑
-			}
-			return o2[2] - o1[2]; //1. 공격력이 높은 포탑
-		});
-		return new int[] {list.get(0)[0], list.get(0)[1]};
+		return new int[] { ti, tj };
 	}
 	
 	static boolean laser(int[] attacker, int[] target) {
