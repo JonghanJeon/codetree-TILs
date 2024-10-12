@@ -35,62 +35,88 @@ public class Main {
     
     // 모든 참가자 이동
     static void movePlayer() {
-    	for (int i = 1; i <= M; i++) {
-    		
-    		// 이미 출구에 있는 경우 스킵
-    		if (players[i].x == exits.x && players[i].y == exits.y) continue;
-    		
-    		int base = getDist(players[i].x, players[i].y);
-    		
-    		for (int d = 0; d < 4; d++) {
-    			int nx = players[i].x + dx[d];
-    			int ny = players[i].y + dy[d];
-    			
-    			if (!inMap(nx, ny)) continue;
-    			
-    			int value = getDist(nx, ny);
-    			
-    			if (base < value) continue;
-    			
-    			if (map[nx][ny] > 0) continue;
-    			
-    			players[i].x = nx;
-    			players[i].y = ny;
-    			ans++;
-    			
-    			break;
-    		}
-    	}
+    	// m명의 모든 참가자들에 대해 이동을 진행합니다.
+        for(int i = 1; i <= M; i++) {
+            // 이미 출구에 있는 경우 스킵합니다.
+            if(players[i].x == exits.x && players[i].y == exits.y)
+                continue;
+            
+            // 행이 다른 경우 행을 이동시켜봅니다.
+            if(players[i].x != exits.x) {
+                int nx = players[i].x;
+                int ny = players[i].y;
+    
+                if(exits.x > nx) nx++;
+                else nx--;
+    
+                // 벽이 없다면 행을 이동시킬 수 있습니다.
+                // 이 경우 행을 이동시키고 바로 다음 참가자로 넘어갑니다.
+                if(map[nx][ny] == 0) {
+                    players[i].x = nx;
+                    players[i].y = ny;
+                    ans++;
+                    continue;
+                }
+            }
+    
+            // 열이 다른 경우 열을 이동시켜봅니다.
+            if(players[i].y != exits.y) {
+                int nx = players[i].x;
+                int ny = players[i].y;
+    
+                if(exits.y > ny) ny++;
+                else ny--;
+    
+                // 벽이 없다면 행을 이동시킬 수 있습니다.
+                // 이 경우 열을 이동시킵니다.
+                if(map[nx][ny] == 0) {
+                    players[i].x = nx;
+                    players[i].y = ny;
+                    ans++;
+                    continue;
+                }
+            }
+        }
     }
     
     static void findMinimumSquare() {
-    	// 가장 작은 정사각형부터 모든 정사각형을 만들어 봅니다.
-    	for (int size = 2; size <= N; size++) {
-    		// 가장 좌상단 r 좌표가 작은 것부터 하나씩 만들어 봅니다.
-    		for (int x1 = 1; x1 <= N - size + 1; x1++) {
-    			// 가장 좌상단 c 좌표가 작은 것부터 하나씩 만들어 봅니다.
-    			for (int y1 = 1; y1 <= N - size; y1++) {
-    				int x2 = x1 + size - 1;
-    				int y2 = y1 + size - 1;
-    				
-    				// 출구가 정사각형 안에 없다면 스킵
-    				if (!(x1 <= exits.x && exits.x <= x2 && y1 <= exits.y && exits.y <= y2)) continue;
-    				
-    				// 한 명 이상의 참가자가 해당 정사각형 안에 있는지 확인
-    				boolean isPlayerIn = false;
-    				for (int i = 1; i <= M; i++) {
-    					// 출구에 있는 참가자는 제외
-    					if (players[i].x == exits.x && players[i].y == exits.y) continue;
-    					if (x1 <= players[i].x && players[i].x <= x2 && y1 <= players[i].y && players[i].y <= y2) isPlayerIn = true;
-    				}
-    				
-    				if (isPlayerIn) {
-    					sx = x1; sy = y1; squareSize = size;
-    					return;
-    				}
-    			}
-    		}
-    	}
+    	// 가장 작은 정사각형부터 모든 정사각형을 만들어봅니다.
+        for(int sz = 2; sz <= N; sz++) {
+            // 가장 좌상단 r 좌표가 작은 것부터 하나씩 만들어봅니다.
+            for(int x1 = 1; x1 <= N - sz + 1; x1++) {
+                // 가장 좌상단 c 좌표가 작은 것부터 하나씩 만들어봅니다.
+                for(int y1 = 1; y1 <= N - sz + 1; y1++) {
+                    int x2 = x1 + sz - 1;
+                    int y2 = y1 + sz - 1;
+    
+                    // 만약 출구가 해당 정사각형 안에 없다면 스킵합니다.
+                    if(!(x1 <= exits.x && exits.x <= x2 && y1 <= exits.y && exits.y <= y2)) {
+                        continue;
+                    }
+    
+                    // 한 명 이상의 참가자가 해당 정사각형 안에 있는지 판단합니다.
+                    boolean isTravelerIn = false;
+                    for(int l = 1; l <= M; l++) {
+                        if(x1 <= players[l].x && players[l].x <= x2 && y1 <= players[l].y && players[l].y <= y2) {
+                            // 출구에 있는 참가자는 제외합니다.
+                            if(!(players[l].x == exits.x && players[l].y == exits.y)) {
+                                isTravelerIn = true;
+                            }
+                        }
+                    }
+    
+                    // 만약 한 명 이상의 참가자가 해당 정사각형 안에 있다면
+                    // sx, sy, sqaureSize 정보를 갱신하고 종료합니다.
+                    if(isTravelerIn) {
+                        sx = x1;
+                        sy = y1;
+                        squareSize = sz;
+    
+                        return;
+                    }
+                }
+            }
+        }
     }
     
     static void rotateSquare() {
