@@ -35,48 +35,32 @@ public class Main {
     
     // 모든 참가자 이동
     static void movePlayer() {
-    	// m명의 모든 참가자들에 대해 이동을 진행합니다.
-        for(int i = 1; i <= M; i++) {
-            // 이미 출구에 있는 경우 스킵합니다.
-            if(players[i].x == exits.x && players[i].y == exits.y)
-                continue;
-            
-            // 행이 다른 경우 행을 이동시켜봅니다.
-            if(players[i].x != exits.x) {
-                int nx = players[i].x;
-                int ny = players[i].y;
-    
-                if(exits.x > nx) nx++;
-                else nx--;
-    
-                // 벽이 없다면 행을 이동시킬 수 있습니다.
-                // 이 경우 행을 이동시키고 바로 다음 참가자로 넘어갑니다.
-                if(map[nx][ny] == 0) {
-                    players[i].x = nx;
-                    players[i].y = ny;
-                    ans++;
-                    continue;
-                }
-            }
-    
-            // 열이 다른 경우 열을 이동시켜봅니다.
-            if(players[i].y != exits.y) {
-                int nx = players[i].x;
-                int ny = players[i].y;
-    
-                if(exits.y > ny) ny++;
-                else ny--;
-    
-                // 벽이 없다면 행을 이동시킬 수 있습니다.
-                // 이 경우 열을 이동시킵니다.
-                if(map[nx][ny] == 0) {
-                    players[i].x = nx;
-                    players[i].y = ny;
-                    ans++;
-                    continue;
-                }
-            }
-        }
+    	for (int i = 1; i <= M; i++) {
+    		
+    		// 이미 출구에 있는 경우 스킵
+    		if (players[i].x == exits.x && players[i].y == exits.y) continue;
+    		
+    		int base = getDist(players[i].x, players[i].y);
+    		
+    		for (int d = 0; d < 4; d++) {
+    			int nx = players[i].x + dx[d];
+    			int ny = players[i].y + dy[d];
+    			
+    			if (!inMap(nx, ny)) continue;
+    			
+    			int value = getDist(nx, ny);
+    			
+    			if (base < value) continue;
+    			
+    			if (map[nx][ny] > 0) continue;
+    			
+    			players[i].x = nx;
+    			players[i].y = ny;
+    			ans++;
+    			
+    			break;
+    		}
+    	}
     }
     
     static void findMinimumSquare() {
@@ -117,7 +101,7 @@ public class Main {
     		}
     	}
     	
-        nextMap = new int[N + 1][N + 1];
+    	nextMap = new int[N + 1][N + 1];
     	// 정사각형을 90도 회전시켜줍니다.
     	for (int x = sx; x < sx + squareSize; x++) {
     		for (int y = sy; y < sy + squareSize; y++) {
@@ -180,8 +164,8 @@ public class Main {
 		N = sc.nextInt();
 		M = sc.nextInt();
 		K = sc.nextInt();
-        map = new int[N + 1][N + 1];
-        players = new Pair[M + 1];
+		map = new int[N + 1][N + 1];
+		players = new Pair[M + 1];
 		
 		for (int i = 1; i <= N; i++) {
 			for (int j = 1; j <= N; j++) {
