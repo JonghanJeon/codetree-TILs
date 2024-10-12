@@ -3,21 +3,6 @@ import java.io.*;
 
 public class Main {
 	
-	// N: 맵 크기
-	// M: 러너 수
-	// K: 턴 수
-	static int N, M, K;
-	static int[][] map;
-	static boolean[][] exitMap;
-	static Pair exit;
-	static Pair[] players;
-	static int[] dist;
-	static boolean[] isEscape;
-	static int playerNum;
-	
-	static int[] dx = {-1, 1, 0, 0};
-	static int[] dy = {0, 0, 1, -1};
-	
 	static class Pair {
 		int x, y;
 		
@@ -26,220 +11,195 @@ public class Main {
 		}
 	}
 	
-	static boolean inMap(int x, int y) {
-		return 1 <= x && x <= N && 1 <= y && y <= N;
-	}
+	static int N, M, K;
+    // 모든 벽들의 상태 기록
+	static int[][] map;
+	
+	// 회전 구현을 편하기 하기 위해 2차원 배열을 하나 더 정의
+    static int[][] nextMap;
+    
+    // 참가자의 위치 정보 기록
+    static Pair[] players;
+    
+    // 출구의 위치 정보 기록
+    static Pair exits;
+    
+    // 정답을 기록
+    static int ans;
+    
+    // 회전해야 하는 최소 정사각형을 찾아 기록
+    static int sx, sy, squareSize;
+    
+    static int[] dx = {-1, 1, 0, 0};
+    static int[] dy = {0, 0, -1, 1};
+    
+    // 모든 참가자 이동
+    static void movePlayer() {
+    	for (int i = 1; i <= M; i++) {
+    		
+    		// 이미 출구에 있는 경우 스킵
+    		if (players[i].x == exits.x && players[i].y == exits.y) continue;
+    		
+    		int base = getDist(players[i].x, players[i].y);
+    		
+    		for (int d = 0; d < 4; d++) {
+    			int nx = players[i].x + dx[d];
+    			int ny = players[i].y + dy[d];
+    			
+    			if (!inMap(nx, ny)) continue;
+    			
+    			int value = getDist(nx, ny);
+    			
+    			if (base < value) continue;
+    			
+    			if (map[nx][ny] > 0) continue;
+    			
+    			players[i].x = nx;
+    			players[i].y = ny;
+    			ans++;
+    			
+    			break;
+    		}
+    	}
+    }
+    
+    static void findMinimumSquare() {
+    	// 가장 작은 정사각형부터 모든 정사각형을 만들어 봅니다.
+    	for (int size = 2; size <= N; size++) {
+    		// 가장 좌상단 r 좌표가 작은 것부터 하나씩 만들어 봅니다.
+    		for (int x1 = 1; x1 <= N - size + 1; x1++) {
+    			// 가장 좌상단 c 좌표가 작은 것부터 하나씩 만들어 봅니다.
+    			for (int y1 = 1; y1 <= N - size; y1++) {
+    				int x2 = x1 + size - 1;
+    				int y2 = y1 + size - 1;
+    				
+    				// 출구가 정사각형 안에 없다면 스킵
+    				if (!(x1 <= exits.x && exits.x <= x2 && y1 <= exits.y && exits.y <= y2)) continue;
+    				
+    				// 한 명 이상의 참가자가 해당 정사각형 안에 있는지 확인
+    				boolean isPlayerIn = false;
+    				for (int i = 1; i <= M; i++) {
+    					// 출구에 있는 참가자는 제외
+    					if (players[i].x == exits.x && players[i].y == exits.y) continue;
+    					if (x1 <= players[i].x && players[i].x <= x2 && y1 <= players[i].y && players[i].y <= y2) isPlayerIn = true;
+    				}
+    				
+    				if (isPlayerIn) {
+    					sx = x1; sy = y1; squareSize = size;
+    					return;
+    				}
+    			}
+    		}
+    	}
+    }
+    
+    static void rotateSquare() {
+    	// 먼저 정사각형 안에 있는 벽들을 1 감소시킴
+    	for (int x = sx; x < sx + squareSize; x++) {
+    		for (int y = sy; y < sy + squareSize; y++) {
+    			if (map[x][y] > 0) map[x][y]--;
+    		}
+    	}
+    	
+        nextMap = new int[N + 1][N + 1];
+    	// 정사각형을 90도 회전시켜줍니다.
+    	for (int x = sx; x < sx + squareSize; x++) {
+    		for (int y = sy; y < sy + squareSize; y++) {
+    			int oldX = x - sx; int oldY = y - sy;
+    			int newX = oldY + sx;
+    			int newY = (squareSize - 1) - oldX + sy;
+    			
+    			nextMap[newX][newY] = map[x][y];
+    		}
+    	}
+    	
+    	for (int x = sx; x < sx + squareSize; x++) {
+    		for (int y = sy; y < sy + squareSize; y++) {
+    			map[x][y] = nextMap[x][y];
+    		}
+    	}
+    }
+    
+    static void rotatePlayerAndExit() {
+    	for (int i = 1; i <= M; i++) {
+    		int x = players[i].x;
+    		int y = players[i].y;
+    		// 참가자가 정사각형 안에 있는 경우 회전
+    		if (sx <= x && x < sx + squareSize && sy <= y && y < sy + squareSize) {
+    			int oldX = x - sx;
+    			int oldY = y - sy;
+    			int newX = oldY + sx;
+    			int newY = (squareSize - 1) - oldX + sy;
+    			
+    			players[i].x = newX;
+    			players[i].y = newY;
+    		}
+    	}
+    	
+    	int x = exits.x; int y = exits.y;
+    	
+    	if (sx <= x && x < sx + squareSize && sy <= y && y < sy + squareSize) {
+    		// 좌표를 0, 0 으로 옮겨주는 변환
+    		int oldX = x - sx; int oldY = y - sy;
+    		// 변환된 상태에서 회전.
+    		int rx = oldY;
+    		int ry = squareSize - 1 - oldX;
+    		// 다시 sx, sy로 옮겨주는 변환
+    		exits.x = rx + sx;
+    		exits.y = ry + sy;
+    	}
+    }
+    
+    static int getDist(int x, int y) {
+    	return Math.abs(exits.x - x) + Math.abs(exits.y - y);
+    }
+    
+    static boolean inMap(int x, int y) {
+    	return 1 <= x && x <= N && 1 <= y && y <= N;
+    }
+    
 	
 	public static void main(String[] args) throws IOException {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st;
+		Scanner sc = new Scanner(System.in);
+		N = sc.nextInt();
+		M = sc.nextInt();
+		K = sc.nextInt();
+        map = new int[N + 1][N + 1];
+        players = new Pair[M + 1];
 		
-		st = new StringTokenizer(br.readLine());
-		N = Integer.parseInt(st.nextToken());
-		M = Integer.parseInt(st.nextToken());
-		K = Integer.parseInt(st.nextToken());
-		
-		map = new int[N + 1][N + 1];
 		for (int i = 1; i <= N; i++) {
-			st = new StringTokenizer(br.readLine());
 			for (int j = 1; j <= N; j++) {
-				map[i][j] = Integer.parseInt(st.nextToken());
+				map[i][j] = sc.nextInt();
 			}
 		}
 		
-		players = new Pair[M + 1];
 		for (int i = 1; i <= M; i++) {
-			st = new StringTokenizer(br.readLine());
-			int x = Integer.parseInt(st.nextToken());
-			int y = Integer.parseInt(st.nextToken());
+			int x = sc.nextInt();
+			int y = sc.nextInt();
 			players[i] = new Pair(x, y);
 		}
 		
-		st = new StringTokenizer(br.readLine());
-		exit = new Pair(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
-		exitMap = new boolean[N + 1][N + 1];
-		exitMap[exit.x][exit.y] = true;
-		
-		dist = new int[M + 1];
-		isEscape = new boolean[M + 1];
-		playerNum = M;
+		exits = new Pair(sc.nextInt(), sc.nextInt());
 		
 		for (int t = 0; t < K; t++) {
-			if(playerNum == 0) break;
 			
 			movePlayer();
 			
-			if(playerNum == 0) break;
-			
-			int[] info = findSquare();
-			int squareX = info[0];
-			int squareY = info[1];
-			int squareLeng = info[2];
-			
-			rotateMaze(squareX, squareY, squareLeng);
-
-		}
-		
-		int answer = 0;
-		for (int val : dist) {
-			answer += val;
-		}
-		
-		System.out.println(answer);
-        System.out.println(exit.x + " " + exit.y);
-	}
-	
-	static void rotateMaze(int baseX, int baseY, int leng) {
-		rotateWall(baseX, baseY, leng);
-		
-		rotatePlayer(baseX, baseY, leng);
-		
-		rotateExit(baseX, baseY, leng);
-	}
-	
-	static void rotateExit(int startX, int startY, int leng) {
-		int oldX = exit.x; int oldY = exit.y;
-		int newX = (oldY - startY) + startX;
-		int newY = (leng - 1) - (oldX - startX) + startY;
-		exit.x = newX; exit.y = newY;
-	}
-	
-	static void rotatePlayer(int baseX, int baseY, int leng) {
-		Pair[] tmp = new Pair[M + 1];
-		
-		for (int i = 1; i <= M; i++) {
-			if (isEscape[i]) continue;
-			
-			Pair player = players[i];
-			
-			int ox = player.x; int oy= player.y;
-			
-			if (baseX <= ox && ox < baseX + leng && baseY <= oy && oy < baseY + leng) {
-				int nx = (oy - baseY) + baseX;
-				int ny = (leng - 1) - (ox - baseX) + baseY;
-				
-				tmp[i] = new Pair(nx, ny);
-			} else {
-				tmp[i] = player;
+			boolean isAllEscaped = true;
+			for (int i = 1; i <= M; i++) {
+				if (players[i].x != exits.x || players[i].y != exits.y) isAllEscaped = false;
 			}
+			
+			if (isAllEscaped) break;
+			
+			findMinimumSquare();
+			
+			rotateSquare();
+			rotatePlayerAndExit();
+			
 		}
 		
-		for (int i = 1; i <= M; i++) {
-			players[i] = tmp[i];
-		}
-	}
-	
-	static void rotateWall(int baseX, int baseY, int leng) {
-		int[][] tmp = new int[leng][leng];
-		int[][] tmp2 = new int[leng][leng];
-		
-		for (int x = baseX; x < baseX + leng; x++) {
-			for (int y = baseY; y < baseY + leng; y++) {
-				tmp[x - baseX][y - baseY] = map[x][y]; 
-			}
-		}
-		
-		for (int x = 0; x < leng; x++) {
-			for (int y = 0; y < leng; y++) {
-				tmp2[x][y] = tmp[leng - 1 - y][x];
-			}
-		}
-		
-		for (int x = baseX; x < baseX + leng; x++) {
-			for (int y = baseY; y < baseY + leng; y++) {
-				map[x][y] = tmp2[x - baseX][y - baseY];
-			}
-		}
-		
-		for (int x = baseX; x < baseX + leng; x++) {
-			for (int y = baseY; y < baseY + leng; y++) {
-				if (map[x][y] > 0) map[x][y] -= 1;
-			}
-		}
-	}
-	
-	static int[] findSquare() {
-		// 0 = x
-		// 1 = y
-		// 2 = leng
-		List<int[]> list = new ArrayList<int[]>();
-		for (int i = 1; i <= M; i++) {
-			if (isEscape[i]) continue;
-			
-			Pair player = players[i];
-
-			int gx = Math.abs(player.x - exit.x) + 1;
-			int gy = Math.abs(player.y - exit.y) + 1;
-			
-			int leng = Math.max(gx, gy);
-			
-			int mx = Math.max(player.x, exit.x);
-			int my = Math.max(player.y, exit.y);
-			
-			// 좌상 찾기
-			int[] findInfo = findLoca(leng, mx, my);
-			
-			list.add(findInfo);
-		}
-		
-		Collections.sort(list, (o1, o2) -> {
-			if (o1[2] == o2[2]) {
-				if (o1[0] == o1[0]) {
-					return o1[1] - o2[1];
-				}
-				return o1[0] - o2[0];
-			}
-			return o1[2] - o2[2];
-		});
-		
-		return list.get(0);
-	}
-	
-	static int[] findLoca(int leng, int mx, int my) {
-		for (int i = mx - leng + 1; i <= mx; i++) {
-            for (int j = my - leng + 1; j <= my; j++) {
-                if (!inMap(i, j)) continue;
-                return new int[] {i, j, leng};
-            }
-		}
-		return null;
-	}
-	
-	
-	static void movePlayer() {
-		for (int i = 1; i <= M; i++) {
-			if (isEscape[i]) continue;
-			
-			Pair player = players[i];
-			int base = getDistance(player.x, player.y);
-			
-			for (int d = 0; d < 4; d++) {
-				int nx = player.x + dx[d];
-				int ny = player.y + dy[d];
-				
-				if (!inMap(nx, ny)) continue;
-				
-				int value = getDistance(nx, ny);
-				// 더 먼거리는 이동할 수 없다.
-				if (base < value) continue;
-				// 벽이 있다면 이동할 수 없다.
-				if (map[nx][ny] > 0) continue;
-				
-				player.x = nx;
-				player.y = ny;
-				dist[i]++;
-				
-				if (player.x == exit.x && player.y == exit.y) {
-					isEscape[i] = true;
-					playerNum--;
-				}
-				
-				break;
-			}
-		}
-	}
-	
-	static int getDistance(int x, int y) {
-		return Math.abs(exit.x - x) + Math.abs(exit.y - y);
+		System.out.println(ans);
+		System.out.println(exits.x + " " + exits.y);
 	}
 }
