@@ -1,144 +1,120 @@
-import java.util.*;
-import java.io.*;
+class Pair {
+	int x, y;
 
-/**
- * 부서지지 않은 포탑이 1개가 된다면 그 즉시 중지
- * 상황에 따라 공격력이 줄어들거나 늘어날 수 있습니다. 
- * 공격력이 0 이하가 된다면, 해당 포탑은 부서지며 더 이상의 공격을 할 수 없습니다.
- * 
- * 공격을 할 때에는 레이저 공격을 먼저 시도하고, 만약 그게 안 된다면 포탄 공격
- * 
- * 레이저
- * 1. 상하좌우 ( 우/하/좌/상의 우선순위 )
- * 2. 부서진 포탑이 있는 위치는 지날 수 없습니다.
- * 3. 가장자리에서 막힌 방향으로 진행하고자 한다면, 반대편으로 나옵니다. (행과 열이 이어질 수 있음)
- * 
- * 공격자의 위치에서 공격 대상 포탑까지의 최단 경로로 공격
- * 그러한 경로가 존재하지 않는다면 (2) 포탄 공격을 진행.
- * 경로의 길이가 똑같은 최단 경로가 2개 이상이라면, 우/하/좌/상의 우선순위대로 먼저 움직인 경로가 선택
- * 공격 대상에는 공격자의 공격력 만큼의 피해를 입히며, 피해를 입은 포탑은 해당 수치만큼 공격력이 줄어듭니다. 
- * 공격 대상을 제외한 레이저 경로에 있는 포탑도 공격을 받게 되는데, 이 포탑은 공격자 공격력의 절반 만큼의 공격
- * 
- * 
- * 
- * (2) 포탄 공격
- * 공격 대상은 공격자 공격력 만큼의 피해
- * 추가적으로 주위 8개의 방향에 있는 포탑도 피해 - 공격자 공격력의 절반 만큼의 피해
- * 공격자는 해당 공격에 영향을 받지 않습니다.
- * 
- * 
- * 공격력이 0 이하가 된 포탑은 부서집니다.
- * 
- * 부서지지 않은 포탑 중 공격과 무관했던 포탑은 공격력이 1씩 올라갑니다.
- */
+	public Pair(int x, int y) {
+		super();
+		this.x = x;
+		this.y = y;
+	}
+
+}
 
 public class Main {
-	
-	// N x M 격자
-	// K 턴
+
 	static int N, M, K;
-	static int[][] map;
-	static int[][] lastAttack;
-	static boolean[][] isAttacked;
-	static int tankNum = 0;
-	
-	// 우/하/좌/상
-	static int[] dx = {0, 1, 0, -1};
-	static int[] dy = {1, 0, -1, 0};
-	
-	static class Pair {
-		int x, y;
-		
-		public Pair(int x, int y) {
-			this.x = x;
-			this.y = y;
-		}
-	}
-	
+	static int[][] arr;
+	static int[][] lastAttack; // 공격 시점 체크
+	static boolean[][] isAttacked; // 공격 관련 여부 체크
+	static int[] dx = { 0, 1, 0, -1 };
+	static int[] dy = { 1, 0, -1, 0 };
+	static int[] ddx = { 0, 1, 0, -1, 1, 1, -1, -1 };
+	static int[] ddy = { 1, 0, -1, 0, -1, 1, -1, 1 };
+
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st;
-		
-		st = new StringTokenizer(br.readLine());
+		StringTokenizer st = new StringTokenizer(br.readLine());
 		N = Integer.parseInt(st.nextToken());
 		M = Integer.parseInt(st.nextToken());
 		K = Integer.parseInt(st.nextToken());
-		map = new int[N][M];
-		lastAttack = new int[N][M];
-		
+
+		arr = new int[N][M];
+
 		for (int i = 0; i < N; i++) {
 			st = new StringTokenizer(br.readLine());
 			for (int j = 0; j < M; j++) {
-				int power = Integer.parseInt(st.nextToken());
-				map[i][j] = power;
-				if (power != 0) tankNum++;
+				arr[i][j] = Integer.parseInt(st.nextToken());
 			}
 		}
-		
-		for (int t = 1; t <= K; t++) {
-			if (isFinish()) break;
-			
+
+		lastAttack = new int[N][M];
+
+		for (int round = 1; round <= K; round++) {
+
+			if (isFinish())
+				break;
+
 			isAttacked = new boolean[N][M];
-			
-			// 공격자 선정
-			int[] attacker = findAttacker();
-			isAttacked[attacker[0]][attacker[1]] = true;
-			lastAttack[attacker[0]][attacker[1]] = t;
-			
-			// 핸디캡 적용
-			map[attacker[0]][attacker[1]] += (N + M);
-			
-			// 공격대상 선정
-			int[] target = findTarget(attacker);
-			isAttacked[target[0]][target[1]] = true;
-			
+
+			// 1. 공격자 선정
+			int[] atk = searchAttacker();
+			arr[atk[0]][atk[1]] += N + M;
+			isAttacked[atk[0]][atk[1]] = true;
+			lastAttack[atk[0]][atk[1]] = round;
+
+			// 2. 공격자의 공격
+			// 타켓 선정
+			int[] tgt = searchTarget(atk);
+			isAttacked[tgt[0]][tgt[1]] = true;
+
 			// 공격
-			if (!laser(attacker, target)) {
-				bomb(attacker, target);
+			if (!laser(atk, tgt)) {
+				bomb(atk, tgt);
 			}
-			
-			// 정비
+
+			// 3. 포탑 부서짐
 			for (int i = 0; i < N; i++) {
 				for (int j = 0; j < M; j++) {
-					if (map[i][j] == 0) continue;
-					if (isAttacked[i][j]) continue;
-					map[i][j]++;
+					if (arr[i][j] < 0)
+						arr[i][j] = 0;
 				}
 			}
-			
-		}
-		
-		int maxPower = Integer.MIN_VALUE;
-		for (int i = 0; i < N; i++) {
-			for (int j = 0; j < M; j++) {
-				maxPower = Math.max(maxPower, map[i][j]);
+
+			// 4. 포탑 정비
+			for (int i = 0; i < N; i++) {
+				for (int j = 0; j < M; j++) {
+					if (arr[i][j] == 0)		continue;
+					if (isAttacked[i][j])	continue;
+					arr[i][j] += 1;
+				}
 			}
 		}
 		
-		System.out.println(maxPower);
+		int max = 0;
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < M; j++) {
+				if (arr[i][j] > max) {
+					max = arr[i][j];
+				}
+			}
+		}
+		System.out.println(max);
 	}
-	
-	static int[] findAttacker() {
-		/*
-		 * 1. 공격력이 가장 낮은 포탑
-		 * 2. 가장 최근에 공격한 포탑 (모든 포탑은 시점 0에 모두 공격한 경험이 있다고 가정) (최근이면 마지막 턴이니까 큰턴)
-		 * 3. 행과 열의 합이 가장 큰 포탑
-		 * 4. 열 값이 가장 큰 포탑
-		 */
-		// 0, 1 : x, y // 2: power // 3. lastAttack
-		int power = Integer.MAX_VALUE;
+
+	static boolean isFinish() {
+		int count = 0;
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < M; j++) {
+				if (arr[i][j] == 0)	continue;
+				count++;
+			}
+		}
+		return count == 1;
+	}
+
+	static int[] searchAttacker() {
+		int power = 5001;
 		int ai = 0, aj = 0;
 		for (int i = 0; i < N; i++) {
 			for (int j = 0; j < M; j++) {
-				if (map[i][j] == 0)	continue;
+				if (arr[i][j] == 0)	continue;
 				
 				// 1. 공격력이 가장 낮은 포탑
-				if (map[i][j] < power) {
-					power = map[i][j];
+				if (arr[i][j] < power) {
+					power = arr[i][j];
 					ai = i;
 					aj = j;
 					continue;
-				} else if (map[i][j] > power)	continue;
+				} else if (arr[i][j] > power)	continue;
 
 				// 2. 가장 최근에 공격한 포탑
 				if (lastAttack[i][j] > lastAttack[ai][aj]) {
@@ -165,28 +141,22 @@ public class Main {
 
 		return new int[] { ai, aj };
 	}
-	
-	static int[] findTarget(int[] attacker) {
-		/*
-		 * 1. 공격력이 가장 높은 포탑이 가장 강한 포탑입니다.
-			2. 공격한지 가장 오래된 포탑이 가장 강한 포탑입니다. (모든 포탑은 시점 0에 모두 공격한 경험이 있다고 가정하겠습니다.)
-			3. 행과 열의 합이 가장 작은 포탑이 가장 강한 포탑입니다.
-			4. 열 값이 가장 작은 포탑이 가장 강한 포탑입니다.
-		 */
+
+	static int[] searchTarget(int[] atk) {
 		int power = -1;
 		int ti = 0, tj = 0;
 		for (int i = 0; i < N; i++) {
 			for (int j = 0; j < M; j++) {
-				if (map[i][j] == 0)	continue;
-				if (i == attacker[0] && j == attacker[1])	continue;
+				if (arr[i][j] == 0)	continue;
+				if (i == atk[0] && j == atk[1])	continue;
 				
 				// 1. 공격력 높은 포탑
-				if (map[i][j] > power) {
-					power = map[i][j];
+				if (arr[i][j] > power) {
+					power = arr[i][j];
 					ti = i;
 					tj = j;
 					continue;
-				} else if (map[i][j] < power)	continue;
+				} else if (arr[i][j] < power)	continue;
 				
 				// 2. 공격한지 가장 오래된 포탑
 				if (lastAttack[i][j] < lastAttack[ti][tj]) {
@@ -212,78 +182,58 @@ public class Main {
 		}
 		return new int[] { ti, tj };
 	}
-	
-	static boolean laser(int[] attacker, int[] target) {
-		boolean[][] visited = new boolean[N][M];
-		Pair[][] come = new Pair[N][M];
-		
+
+	// 레이저 공격
+	static boolean laser(int[] atk, int[] tgt) {
+		boolean[][] visited = new boolean[N][M]; // 방문 체크
+		Pair[][] come = new Pair[N][M]; // 경로 역추적
+
 		Queue<Pair> q = new LinkedList<>();
-		q.add(new Pair(attacker[0], attacker[1]));
-		visited[attacker[0]][attacker[1]] = true;
-		
+		q.add(new Pair(atk[0], atk[1]));
+		visited[atk[0]][atk[1]] = true;
+
 		while (!q.isEmpty()) {
-			Pair cur = q.poll();
+			Pair pair = q.poll();
 			for (int d = 0; d < 4; d++) {
-				int nx = (cur.x + dx[d] + N) % N;
-				int ny = (cur.y + dy[d] + M) % M;
-				// 방문했던 곳 continue
-				if (visited[nx][ny]) continue;
-				// 부서진 포탑이면 경로 불가
-				if (map[nx][ny] == 0) continue;
-				come[nx][ny] = new Pair(cur.x, cur.y);
+				int nx = (pair.x + dx[d] + N) % N;
+				int ny = (pair.y + dy[d] + M) % M;
+				if (visited[nx][ny])	continue;
+				if (arr[nx][ny] == 0)	continue;
+				come[nx][ny] = new Pair(pair.x, pair.y);
 				visited[nx][ny] = true;
 				q.add(new Pair(nx, ny));
 			}
 		}
-		// 타겟까지 도달한 적이 없다 = 타겟까지 도달 불가능할 경우
-		if (!visited[target[0]][target[1]]) return false;
-		
-		int x = target[0]; int y = target[1];
-		while (x != attacker[0] || y != attacker[1]) {
-			int power = map[attacker[0]][attacker[1]] / 2;
-			if (x == target[0] && y == target[1]) {
-				power = map[attacker[0]][attacker[1]];
+		// 레이저로 타겟 도달이 불가능할 경우
+		if (!visited[tgt[0]][tgt[1]])
+			return false;
+
+		// 경로 역추적
+		int x = tgt[0], y = tgt[1];
+		while (x != atk[0] || y != atk[1]) {
+			int power = arr[atk[0]][atk[1]] / 2;
+			if (x == tgt[0] && y == tgt[1]) {
+				power = arr[atk[0]][atk[1]];
 			}
-			map[x][y] -= power;
-			// 공격 관련 기록
+			arr[x][y] -= power;
 			isAttacked[x][y] = true;
-			// 경로 역추적
-			Pair pair = come[x][y];
-			x = pair.x; y = pair.y;
+			Pair pair = come[x][y]; // 역추적
+			x = pair.x;
+			y = pair.y;
 		}
 		return true;
 	}
-	
-	/*
-	 * 공격 대상은 공격자 공격력 만큼의 피해
-	 * 추가적으로 주위 8개의 방향에 있는 포탑도 피해 - 공격자 공격력의 절반 만큼의 피해
-	 * 공격자는 해당 공격에 영향을 받지 않습니다.
-	 */
-	static void bomb(int[] attacker, int[] target) {
-		// 상 우상 우 우하 하 좌하 좌 좌상
-		int[] bdx = {-1, -1, 0, 1, 1, 1, 0, -1};
-		int[] bdy = {0, 1, 1, 1, 0, -1, -1, -1};
-		map[target[0]][target[1]] -= map[attacker[0]][attacker[1]];
-		int power = map[attacker[0]][attacker[1]] / 2;
+
+	// 포탄 공격
+	static void bomb(int[] atk, int[] tgt) {
+		arr[tgt[0]][tgt[1]] -= arr[atk[0]][atk[1]];
+		int halfPower = arr[atk[0]][atk[1]] / 2;
 		for (int d = 0; d < 8; d++) {
-			int nx = (target[0] + bdx[d] + N) % N;
-			int ny = (target[1] + bdy[d] + M) % M;
-			
-			if (map[nx][ny] == 0) continue;
-			if (nx == attacker[0] && ny == attacker[1]) continue;
-			map[nx][ny] -= power;
+			int nx = (tgt[0] + ddx[d] + N) % N;
+			int ny = (tgt[1] + ddy[d] + M) % M;
+			if (nx == atk[0] && ny == atk[1])	continue;
+			arr[nx][ny] -= halfPower;
 			isAttacked[nx][ny] = true;
 		}
-	}
-	
-	static boolean isFinish() {
-		int count = 0;
-		for (int i = 0; i < N; i++) {
-			for (int j = 0; j < M; j++) {
-				if (map[i][j] == 0)	continue;
-				count++;
-			}
-		}
-		return count == 1;
 	}
 }
