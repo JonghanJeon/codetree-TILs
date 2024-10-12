@@ -134,7 +134,7 @@ public class Main {
 		int ai = 0, aj = 0;
 		for (int i = 0; i < N; i++) {
 			for (int j = 0; j < M; j++) {
-				if (map[i][j] == 0)	continue;
+				if (map[i][j] <= 0)	continue;
 				
 				// 1. 공격력이 가장 낮은 포탑
 				if (map[i][j] < power) {
@@ -202,7 +202,7 @@ public class Main {
 		int ti = 0, tj = 0;
 		for (int i = 0; i < N; i++) {
 			for (int j = 0; j < M; j++) {
-				if (map[i][j] == 0)	continue;
+				if (map[i][j] <= 0)	continue;
 				if (i == atkX && j == atkY)	continue;
 				
 				// 1. 공격력 높은 포탑
