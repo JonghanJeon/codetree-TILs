@@ -210,37 +210,44 @@ public class Main {
 		// 	return o2[2] - o1[2]; //1. 공격력이 높은 포탑
 		// });
 		// return new int[] {list.get(0)[0], list.get(0)[1]};
-        int power = Integer.MIN_VALUE;
-        int maxX = -1;
-        int maxY = -1;
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                if (map[i][j] <= 0) continue;
-                if (i == atkX && j == atkY) continue;
-
-                if (map[i][j] > power) {
-                    power = map[i][j];
-                    maxX = i; maxY = j;
-                    continue;
-                } else if (map[i][j] < power) continue;
-
-                if (lastAttack[maxX][maxY] > lastAttack[i][j]) {
-                    maxX = i; maxY = j;
-                    continue;
-                } else if (lastAttack[maxX][maxY] < lastAttack[i][j]) continue;
-
-                if ((maxX + maxY) > (i + j)) {
-                    maxX = i; maxY = j;
-                    continue;
-                } else if ((maxX + maxY) < (i + j)) continue;
-
-                if (maxY > j) {
-                    maxX = i; maxY = j;
-                }
-            }
-        }
-        
-        return new int[] {maxX, maxY};
+        int power = -1;
+		int ti = 0, tj = 0;
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < M; j++) {
+				if (map[i][j] == 0)	continue;
+				if (i == atk[0] && j == atk[1])	continue;
+				
+				// 1. 공격력 높은 포탑
+				if (map[i][j] > power) {
+					power = map[i][j];
+					ti = i;
+					tj = j;
+					continue;
+				} else if (map[i][j] < power)	continue;
+				
+				// 2. 공격한지 가장 오래된 포탑
+				if (lastAttack[i][j] < lastAttack[ti][tj]) {
+					ti = i;
+					tj = j;
+					continue;
+				} else if (lastAttack[i][j] > lastAttack[ti][tj])
+					continue;
+				
+				// 3. 행과 열의 합이 가장 작은 포탑
+				if (i + j < ti + tj) {
+					ti = i;
+					tj = j;
+					continue;
+				} else if (i + j > ti + tj)	continue;
+				
+				// 4. 열 값이 가장 작은 포탑
+				if (j < tj) {
+					ti = i;
+					tj = j;
+				}
+			}
+		}
+		return new int[] { ti, tj };
 	}
 	
 	static boolean laser(int[] attacker, int[] target) {
