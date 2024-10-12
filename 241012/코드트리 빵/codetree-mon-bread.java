@@ -62,42 +62,50 @@ public class Main {
 		int t = 0;
 		while(true) {
 			t += 1;
-			// System.out.println("TURN " + t);
-			if (t <= m) {
-				int[] baseCamp = findBaseCamp(t);
-				people[t].x = baseCamp[0];
-				people[t].y = baseCamp[1];
-				people[t].inMap = true;
-				// 사람들 이동 후 해당 베이스캠프 이동 불가 칸으로 만듬
-				movePeople(t);
-				map[baseCamp[0]][baseCamp[1]] = -1;
-			} else {
-                // 사람들 이동
-			    movePeople(0);
-            }
+			
+			// 사람들 이동
+			for (int i = 1; i <= m; i++) {
+				if(isArrive[i]) continue;
+				if (i < t) {
+					int dir = bfs(i);
+					people[i].x += dx[dir];
+					people[i].y += dy[dir];
+				}
+			}
 			
 			// 도착한 사람 체크
 			for (int i = 1; i <= m; i++) {
-				// 도착했다면
-				if (people[i].x == people[i].tx && people[i].y == people[i].ty) {
-					// 도착 기록
-					isArrive[i] = true;
-					// 이동 불가 칸으로 만듬.
-					map[people[i].tx][people[i].ty] = -1;
+				if (isArrive[i]) continue;
+				if (i < t) {
+					if (people[i].x == people[i].tx && people[i].y == people[i].ty) {
+						// 도착 기록
+						isArrive[i] = true;
+						// 이동 불가 칸으로 만듬.
+						map[people[i].tx][people[i].ty] = -1;
+					}
+				}
+			}
+			
+			//
+			for (int i = 1; i <= m; i++) {
+				if (i == t) {
+					int[] baseCamp = findBaseCamp(t);
+					people[i].x = baseCamp[0];
+					people[i].y = baseCamp[1];
+					map[baseCamp[0]][baseCamp[1]] = -1;
 				}
 			}
 
-            // for (int i = 1; i <= m; i++) {
-            //     System.out.println("people[i].x = " + people[i].x + ", people[i].y = " + people[i].y);
-            // }
-			
+			// for (int i = 1; i <= m; i++) {
+			// 	System.out.println("people " + i + " x = " + people[i].x + ", y = " + people[i].y);
+			// }
+ 			
 			boolean isDone = true;
 			for (int i = 1; i <= m; i++) {
-                // System.out.print(isArrive[i] + " ");
+				// System.out.print(isArrive[i] + " ");
 				if (!isArrive[i]) isDone = false;
 			}
-            // System.out.println();
-			
+			// System.out.println();
 			if (isDone) break;
 		}
 		
