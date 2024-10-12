@@ -215,7 +215,7 @@ public class Main {
 		for (int i = 0; i < N; i++) {
 			for (int j = 0; j < M; j++) {
 				if (map[i][j] == 0)	continue;
-				if (i == atk[0] && j == atk[1])	continue;
+				if (i == atkX && j == atkY)	continue;
 				
 				// 1. 공격력 높은 포탑
 				if (map[i][j] > power) {
