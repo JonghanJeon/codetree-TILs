@@ -76,7 +76,8 @@ public class Main {
 		}
 		
 		for (int t = 1; t <= K; t++) {
-			if (isFinish()) break;
+			 // 부서지지 않은 포탑이 1개가 된다면 그 즉시 중지
+			if (tankNum == 1) break;
 			
 			isAttacked = new boolean[N][M];
 			
@@ -89,7 +90,7 @@ public class Main {
 			map[attacker[0]][attacker[1]] += (N + M);
 			
 			// 공격대상 선정
-			int[] target = findTarget(attacker);
+			int[] target = findTarget(attacker[0], attacker[1]);
 			isAttacked[target[0]][target[1]] = true;
 			
 			// 공격
@@ -97,22 +98,18 @@ public class Main {
 				bomb(attacker, target);
 			}
 			
-			// 포탑부서짐
-			for (int i = 0; i < N; i++) {
-				for (int j = 0; j < M; j++) {
-					if (map[i][j] <= 0) map[i][j]=0;
-				}
-			}
-			
+			tankNum = 0;
 			// 정비
 			for (int i = 0; i < N; i++) {
 				for (int j = 0; j < M; j++) {
-					if (map[i][j] == 0) continue;
+					if (map[i][j] > 0) tankNum++;
+					if (map[i][j] <= 0) continue;
 					if (isAttacked[i][j]) continue;
 					map[i][j]++;
 				}
 			}
 			
+			if (tankNum == 1) break;
 		}
 		
 		int maxPower = Integer.MIN_VALUE;
@@ -135,8 +132,8 @@ public class Main {
 		// 0, 1 : x, y // 2: power // 3. lastAttack
 		List<int[]> list = new ArrayList<int[]>();
 		for (int i = 0; i < N; i++) {
-			for (int j = 1; j < M; j++) {
-				if (map[i][j] == 0) continue;
+			for (int j = 0; j < M; j++) {
+				if (map[i][j] <= 0) continue;
 				list.add(new int[] {i, j, map[i][j], lastAttack[i][j]});
 			}
 		}
@@ -155,7 +152,7 @@ public class Main {
 		return new int[] {list.get(0)[0], list.get(0)[1]};
 	}
 	
-	static int[] findTarget(int[] attacker) {
+	static int[] findTarget(int atkX, int atkY) {
 		/*
 		 * 1. 공격력이 가장 높은 포탑이 가장 강한 포탑입니다.
 			2. 공격한지 가장 오래된 포탑이 가장 강한 포탑입니다. (모든 포탑은 시점 0에 모두 공격한 경험이 있다고 가정하겠습니다.)
@@ -164,9 +161,9 @@ public class Main {
 		 */
 		List<int[]> list = new ArrayList<int[]>();
 		for (int i = 0; i < N; i++) {
-			for (int j = 1; j < M; j++) {
-				if (map[i][j] == 0) continue;
-				if (i == attacker[0] && j == attacker[1]) continue;
+			for (int j = 0; j < M; j++) {
+				if (map[i][j] <= 0) continue;
+				if (i == atkX && j == atkY) continue;
 				list.add(new int[] {i, j, map[i][j], lastAttack[i][j]});
 			}
 		}
@@ -201,7 +198,7 @@ public class Main {
 				// 방문했던 곳 continue
 				if (visited[nx][ny]) continue;
 				// 부서진 포탑이면 경로 불가
-				if (map[nx][ny] == 0) continue;
+				if (map[nx][ny] <= 0) continue;
 				come[nx][ny] = new Pair(cur.x, cur.y);
 				visited[nx][ny] = true;
 				q.add(new Pair(nx, ny));
@@ -241,21 +238,10 @@ public class Main {
 			int nx = (target[0] + bdx[d] + N) % N;
 			int ny = (target[1] + bdy[d] + M) % M;
 			
-			if (map[nx][ny] == 0) continue;
+			if (map[nx][ny] <= 0) continue;
 			if (nx == attacker[0] && ny == attacker[1]) continue;
 			map[nx][ny] -= power;
 			isAttacked[nx][ny] = true;
 		}
-	}
-	
-	static boolean isFinish() {
-		int count = 0;
-		for (int i = 0; i < N; i++) {
-			for (int j = 0; j < M; j++) {
-				if (map[i][j] == 0)	continue;
-				count++;
-			}
-		}
-		return count == 1;
 	}
 }
