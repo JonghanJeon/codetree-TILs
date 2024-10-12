@@ -130,26 +130,56 @@ public class Main {
 		 * 4. 열 값이 가장 큰 포탑
 		 */
 		// 0, 1 : x, y // 2: power // 3. lastAttack
-		List<int[]> list = new ArrayList<int[]>();
-		for (int i = 0; i < N; i++) {
-			for (int j = 0; j < M; j++) {
-				if (map[i][j] <= 0) continue;
-				list.add(new int[] {i, j, map[i][j], lastAttack[i][j]});
-			}
-		}
-		Collections.sort(list, (o1, o2) -> {
-			if (o1[2] == o2[2]) {
-				if (o1[3] == o2[3]) {
-					if ((o1[0] + o1[1]) == (o2[0] + o2[1])) {
-						return o2[1] - o1[1]; // 4. 열 값이 큰 포탑
-					}
-					return (o2[0] + o2[1]) - (o1[0] + o1[1]); // 3. 행과 열의 합이 큰 포탑
-				}
-				return o2[3] - o1[3]; // 2. 가장 최근에 공격한 포탑
-			}
-			return o1[2] - o2[2]; //1. 공격력이 낮은 포탑
-		});
-		return new int[] {list.get(0)[0], list.get(0)[1]};
+        int power = Integer.MAX_VALUE;
+        int minX = -1;
+        int minY = -1;
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                if (map[i][j] == 0) continue;
+
+                if (map[i][j] < power) {
+                    power = map[i][j];
+                    minX = i; minY = j;
+                    continue;
+                } else if (map[i][j] > power) continue;
+
+                if (lastAttack[minX][minY] < lastAttack[i][j]) {
+                    minX = i; minY = j;
+                    continue;
+                } else if (lastAttack[minX][minY] > lastAttack[i][j]) continue;
+
+                if ((minX + minY) < (i + j)) {
+                    minX = i; minY = j;
+                    continue;
+                } else if ((minX + minY) > (i + j)) continue;
+
+                if (minY < j) {
+                    minX = i; minY = j;
+                }
+            }
+
+        }
+		// List<int[]> list = new ArrayList<int[]>();
+		// for (int i = 0; i < N; i++) {
+		// 	for (int j = 0; j < M; j++) {
+		// 		if (map[i][j] <= 0) continue;
+		// 		list.add(new int[] {i, j, map[i][j], lastAttack[i][j]});
+		// 	}
+		// }
+		// Collections.sort(list, (o1, o2) -> {
+		// 	if (o1[2] == o2[2]) {
+		// 		if (o1[3] == o2[3]) {
+		// 			if ((o1[0] + o1[1]) == (o2[0] + o2[1])) {
+		// 				return o2[1] - o1[1]; // 4. 열 값이 큰 포탑
+		// 			}
+		// 			return (o2[0] + o2[1]) - (o1[0] + o1[1]); // 3. 행과 열의 합이 큰 포탑
+		// 		}
+		// 		return o2[3] - o1[3]; // 2. 가장 최근에 공격한 포탑
+		// 	}
+		// 	return o1[2] - o2[2]; //1. 공격력이 낮은 포탑
+		// });
+		// return new int[] {list.get(0)[0], list.get(0)[1]};
+        return new int[] {minX, minY};
 	}
 	
 	static int[] findTarget(int atkX, int atkY) {
@@ -159,27 +189,58 @@ public class Main {
 			3. 행과 열의 합이 가장 작은 포탑이 가장 강한 포탑입니다.
 			4. 열 값이 가장 작은 포탑이 가장 강한 포탑입니다.
 		 */
-		List<int[]> list = new ArrayList<int[]>();
-		for (int i = 0; i < N; i++) {
-			for (int j = 0; j < M; j++) {
-				if (map[i][j] <= 0) continue;
-				if (i == atkX && j == atkY) continue;
-				list.add(new int[] {i, j, map[i][j], lastAttack[i][j]});
-			}
-		}
-		Collections.sort(list, (o1, o2) -> {
-			if (o1[2] == o2[2]) {
-				if (o1[3] == o2[3]) {
-					if ((o1[0] + o1[1]) == (o2[0] + o2[1])) {
-						return o1[1] - o2[1]; // 4. 열 값이 작은 포탑
-					}
-					return (o1[0] + o1[1]) - (o2[0] + o2[1]); // 3. 행과 열의 합이 작은 포탑
-				}
-				return o1[3] - o2[3]; // 2. 가장 오래전에 공격한 포탑
-			}
-			return o2[2] - o1[2]; //1. 공격력이 높은 포탑
-		});
-		return new int[] {list.get(0)[0], list.get(0)[1]};
+		// List<int[]> list = new ArrayList<int[]>();
+		// for (int i = 0; i < N; i++) {
+		// 	for (int j = 0; j < M; j++) {
+		// 		if (map[i][j] <= 0) continue;
+		// 		if (i == atkX && j == atkY) continue;
+		// 		list.add(new int[] {i, j, map[i][j], lastAttack[i][j]});
+		// 	}
+		// }
+		// Collections.sort(list, (o1, o2) -> {
+		// 	if (o1[2] == o2[2]) {
+		// 		if (o1[3] == o2[3]) {
+		// 			if ((o1[0] + o1[1]) == (o2[0] + o2[1])) {
+		// 				return o1[1] - o2[1]; // 4. 열 값이 작은 포탑
+		// 			}
+		// 			return (o1[0] + o1[1]) - (o2[0] + o2[1]); // 3. 행과 열의 합이 작은 포탑
+		// 		}
+		// 		return o1[3] - o2[3]; // 2. 가장 오래전에 공격한 포탑
+		// 	}
+		// 	return o2[2] - o1[2]; //1. 공격력이 높은 포탑
+		// });
+		// return new int[] {list.get(0)[0], list.get(0)[1]};
+        int power = Integer.MIN_VALUE;
+        int maxX = -1;
+        int maxY = -1;
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                if (map[i][j] == 0) continue;
+                if (i == atkX && j == atkY) continue;
+
+                if (map[i][j] > power) {
+                    power = map[i][j];
+                    maxX = i; maxY = j;
+                    continue;
+                } else if (map[i][j] < power) continue;
+
+                if (lastAttack[maxX][maxY] > lastAttack[i][j]) {
+                    maxX = i; maxY = j;
+                    continue;
+                } else if (lastAttack[maxX][maxY] < lastAttack[i][j]) continue;
+
+                if ((maxX + maxY) > (i + j)) {
+                    maxX = i; maxY = j;
+                    continue;
+                } else if ((maxX + maxY) < (i + j)) continue;
+
+                if (maxY > j) {
+                    maxX = i; maxY = j;
+                }
+            }
+        }
+        
+        return new int[] {maxX, maxY};
 	}
 	
 	static boolean laser(int[] attacker, int[] target) {
