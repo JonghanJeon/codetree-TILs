@@ -130,8 +130,8 @@ public class Main {
 		 * 4. 열 값이 가장 큰 포탑
 		 */
 		// 0, 1 : x, y // 2: power // 3. lastAttack
-        int power = 5001;
-		int ai = 0, aj = 0;
+        int power = Integer.MAX_VALUE;
+		int ai = -1, aj = -1;
 		for (int i = 0; i < N; i++) {
 			for (int j = 0; j < M; j++) {
 				if (map[i][j] <= 0)	continue;
@@ -177,29 +177,8 @@ public class Main {
 			3. 행과 열의 합이 가장 작은 포탑이 가장 강한 포탑입니다.
 			4. 열 값이 가장 작은 포탑이 가장 강한 포탑입니다.
 		 */
-		// List<int[]> list = new ArrayList<int[]>();
-		// for (int i = 0; i < N; i++) {
-		// 	for (int j = 0; j < M; j++) {
-		// 		if (map[i][j] <= 0) continue;
-		// 		if (i == atkX && j == atkY) continue;
-		// 		list.add(new int[] {i, j, map[i][j], lastAttack[i][j]});
-		// 	}
-		// }
-		// Collections.sort(list, (o1, o2) -> {
-		// 	if (o1[2] == o2[2]) {
-		// 		if (o1[3] == o2[3]) {
-		// 			if ((o1[0] + o1[1]) == (o2[0] + o2[1])) {
-		// 				return o1[1] - o2[1]; // 4. 열 값이 작은 포탑
-		// 			}
-		// 			return (o1[0] + o1[1]) - (o2[0] + o2[1]); // 3. 행과 열의 합이 작은 포탑
-		// 		}
-		// 		return o1[3] - o2[3]; // 2. 가장 오래전에 공격한 포탑
-		// 	}
-		// 	return o2[2] - o1[2]; //1. 공격력이 높은 포탑
-		// });
-		// return new int[] {list.get(0)[0], list.get(0)[1]};
-        int power = -1;
-		int ti = 0, tj = 0;
+        int power = Integer.MIN_VALUE;
+		int ti = -1, tj = -1;
 		for (int i = 0; i < N; i++) {
 			for (int j = 0; j < M; j++) {
 				if (map[i][j] <= 0)	continue;
@@ -208,30 +187,26 @@ public class Main {
 				// 1. 공격력 높은 포탑
 				if (map[i][j] > power) {
 					power = map[i][j];
-					ti = i;
-					tj = j;
+					ti = i; tj = j;
 					continue;
 				} else if (map[i][j] < power)	continue;
 				
 				// 2. 공격한지 가장 오래된 포탑
 				if (lastAttack[i][j] < lastAttack[ti][tj]) {
-					ti = i;
-					tj = j;
+					ti = i; tj = j;
 					continue;
 				} else if (lastAttack[i][j] > lastAttack[ti][tj])
 					continue;
 				
 				// 3. 행과 열의 합이 가장 작은 포탑
 				if (i + j < ti + tj) {
-					ti = i;
-					tj = j;
+					ti = i; tj = j;
 					continue;
 				} else if (i + j > ti + tj)	continue;
 				
 				// 4. 열 값이 가장 작은 포탑
 				if (j < tj) {
-					ti = i;
-					tj = j;
+					ti = i; tj = j;
 				}
 			}
 		}
