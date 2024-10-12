@@ -69,9 +69,6 @@ public class Main {
 			Pair start = people[i];
 			Pair end = store[i];
 			
-			if (start.x == -1 && start.y == -1)
-				continue;
-			
 			if (!inMap(start.x, start.y))
 				continue;
 			
